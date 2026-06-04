@@ -27,6 +27,24 @@ type BuilderColumn = {
   variationValues: string[];
 };
 
+type AiSuggestionPhase = {
+  position: number;
+  direction: Direction;
+  techniqueId: string;
+  variationDimensionId: string;
+  variationA: string;
+  variationB: string;
+  variationC: string;
+};
+
+type AiSuggestion = {
+  id: string;
+  title: string;
+  summary: string;
+  overallDirection: Direction;
+  phases: AiSuggestionPhase[];
+};
+
 const DIRECTIONS: Direction[] = ["up", "down", "horizontal", "restorative", "functional"];
 const DIRECTION_LABELS: Record<Direction, string> = {
   up: "Up",
@@ -66,6 +84,13 @@ function App() {
   const [openTechniqueId, setOpenTechniqueId] = useState<string | null>(null);
   const [overallDirection, setOverallDirection] = useState<Direction | "">("");
   const [builder, setBuilder] = useState<BuilderColumn[]>(DEFAULT_BUILDER);
+  const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
+  const [aiCaseInput, setAiCaseInput] = useState("");
+  const [aiOverallHint, setAiOverallHint] = useState<Direction | "">("");
+  const [aiPhaseHints, setAiPhaseHints] = useState<Array<Direction | "">>(["", "", ""]);
+  const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([]);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
   const [isProtocolInspirationCollapsed, setIsProtocolInspirationCollapsed] = useState(false);
   const [hasHydratedBuilder, setHasHydratedBuilder] = useState(false);
 
@@ -258,6 +283,53 @@ function App() {
     setMobileTab("base");
   }
 
+  async function generateAiSuggestions() {
+    setAiError(null);
+    setIsAiLoading(true);
+
+    try {
+      const response = await fetch("/api/ai-protocol-suggestions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          clientDescription: aiCaseInput,
+          overallDirectionHint: aiOverallHint || undefined,
+          phaseHints: aiPhaseHints,
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || "AI assistant request failed.");
+      }
+
+      setAiSuggestions(payload.suggestions ?? []);
+    } catch (error) {
+      setAiError(error instanceof Error ? error.message : "Unknown AI assistant error");
+    } finally {
+      setIsAiLoading(false);
+    }
+  }
+
+  function applyAiSuggestion(suggestion: AiSuggestion) {
+    setOverallDirection(suggestion.overallDirection);
+    setBuilder(
+      suggestion.phases.map((phase) => ({
+        direction: phase.direction,
+        techniqueId: phase.techniqueId,
+        variationDimensionId: phase.variationDimensionId,
+        variationValues: [phase.variationA, phase.variationB, phase.variationC],
+      })),
+    );
+    setMobileTab("builder");
+  }
+
+  function removeAiSuggestion(suggestionId: string) {
+    setAiSuggestions((current) => current.filter((suggestion) => suggestion.id !== suggestionId));
+  }
+
   if (loading) {
     return <Shell><LoadingState /></Shell>;
   }
@@ -319,6 +391,27 @@ function App() {
             onToggleProtocolInspiration={() =>
               setIsProtocolInspirationCollapsed((current) => !current)
             }
+            isAiAssistantOpen={isAiAssistantOpen}
+            onToggleAiAssistant={() => setIsAiAssistantOpen((current) => !current)}
+            aiCaseInput={aiCaseInput}
+            onAiCaseInputChange={setAiCaseInput}
+            aiOverallHint={aiOverallHint}
+            onAiOverallHintChange={setAiOverallHint}
+            aiPhaseHints={aiPhaseHints}
+            onAiPhaseHintsChange={setAiPhaseHints}
+            aiSuggestions={aiSuggestions}
+            aiError={aiError}
+            isAiLoading={isAiLoading}
+            onGenerateAiSuggestions={() => void generateAiSuggestions()}
+            onClearAiAssistant={() => {
+              setAiCaseInput("");
+              setAiOverallHint("");
+              setAiPhaseHints(["", "", ""]);
+              setAiSuggestions([]);
+              setAiError(null);
+            }}
+            onApplyAiSuggestion={applyAiSuggestion}
+            onDiscardAiSuggestion={removeAiSuggestion}
             techniquesById={techniquesById}
             builder={builder}
             singles={singles}
@@ -353,6 +446,27 @@ function App() {
           onToggleProtocolInspiration={() =>
             setIsProtocolInspirationCollapsed((current) => !current)
           }
+          isAiAssistantOpen={isAiAssistantOpen}
+          onToggleAiAssistant={() => setIsAiAssistantOpen((current) => !current)}
+          aiCaseInput={aiCaseInput}
+          onAiCaseInputChange={setAiCaseInput}
+          aiOverallHint={aiOverallHint}
+          onAiOverallHintChange={setAiOverallHint}
+          aiPhaseHints={aiPhaseHints}
+          onAiPhaseHintsChange={setAiPhaseHints}
+          aiSuggestions={aiSuggestions}
+          aiError={aiError}
+          isAiLoading={isAiLoading}
+          onGenerateAiSuggestions={() => void generateAiSuggestions()}
+          onClearAiAssistant={() => {
+            setAiCaseInput("");
+            setAiOverallHint("");
+            setAiPhaseHints(["", "", ""]);
+            setAiSuggestions([]);
+            setAiError(null);
+          }}
+          onApplyAiSuggestion={applyAiSuggestion}
+          onDiscardAiSuggestion={removeAiSuggestion}
           techniquesById={techniquesById}
           builder={builder}
           singles={singles}
@@ -588,6 +702,21 @@ type BuilderPanelProps = {
   suggestedProtocols: Technique[];
   isProtocolInspirationCollapsed: boolean;
   onToggleProtocolInspiration: () => void;
+  isAiAssistantOpen: boolean;
+  onToggleAiAssistant: () => void;
+  aiCaseInput: string;
+  onAiCaseInputChange: (value: string) => void;
+  aiOverallHint: Direction | "";
+  onAiOverallHintChange: (value: Direction | "") => void;
+  aiPhaseHints: Array<Direction | "">;
+  onAiPhaseHintsChange: (value: Array<Direction | "">) => void;
+  aiSuggestions: AiSuggestion[];
+  aiError: string | null;
+  isAiLoading: boolean;
+  onGenerateAiSuggestions: () => void;
+  onClearAiAssistant: () => void;
+  onApplyAiSuggestion: (suggestion: AiSuggestion) => void;
+  onDiscardAiSuggestion: (suggestionId: string) => void;
   techniquesById: Record<string, Technique>;
   builder: BuilderColumn[];
   singles: Technique[];
@@ -606,6 +735,21 @@ function BuilderPanel({
   suggestedProtocols,
   isProtocolInspirationCollapsed,
   onToggleProtocolInspiration,
+  isAiAssistantOpen,
+  onToggleAiAssistant,
+  aiCaseInput,
+  onAiCaseInputChange,
+  aiOverallHint,
+  onAiOverallHintChange,
+  aiPhaseHints,
+  onAiPhaseHintsChange,
+  aiSuggestions,
+  aiError,
+  isAiLoading,
+  onGenerateAiSuggestions,
+  onClearAiAssistant,
+  onApplyAiSuggestion,
+  onDiscardAiSuggestion,
   techniquesById,
   builder,
   singles,
@@ -700,6 +844,121 @@ function BuilderPanel({
             )}
           </CardContent>
         )}
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle className="text-2xl">AI Assistant</CardTitle>
+              <CardDescription>
+                Describe the client case, optionally hint the energy flow, and get three ABC123 protocol suggestions.
+              </CardDescription>
+            </div>
+            <Button variant="outline" onClick={onToggleAiAssistant}>
+              {isAiAssistantOpen ? "Hide AI Assistant" : "Open AI Assistant"}
+            </Button>
+          </div>
+        </CardHeader>
+        {isAiAssistantOpen ? (
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[color:var(--muted-foreground)]">
+                What did you observe and what did the client tell you?
+              </label>
+              <textarea
+                className="min-h-36 w-full rounded-[1.25rem] border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-3 text-sm text-[color:var(--foreground)] outline-none transition-colors placeholder:text-[color:var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[color:var(--ring)]"
+                value={aiCaseInput}
+                onChange={(event) => onAiCaseInputChange(event.target.value)}
+                placeholder="Describe the client's situation, stress state, energy level, emotional tone, breathing pattern, and what support seems needed."
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div className="text-sm font-medium text-[color:var(--muted-foreground)]">Overall direction hint</div>
+              <div className="flex flex-wrap gap-2">
+                <FilterChip active={aiOverallHint === ""} onClick={() => onAiOverallHintChange("")}>
+                  Any
+                </FilterChip>
+                {DIRECTIONS.map((direction) => (
+                  <DirectionSelectChip
+                    key={direction}
+                    direction={direction}
+                    active={aiOverallHint === direction}
+                    onClick={() => onAiOverallHintChange(direction)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="text-sm font-medium text-[color:var(--muted-foreground)]">Phase direction hints</div>
+              <div className="grid gap-3 md:grid-cols-3">
+                {aiPhaseHints.map((hint, index) => (
+                  <div key={index} className="rounded-[1.25rem] border border-[color:var(--border)] bg-[color:var(--surface)] p-3">
+                    <div className="mb-3 text-sm font-semibold text-[color:var(--foreground)]">
+                      Phase {index + 1}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        <FilterChip
+                          active={hint === ""}
+                          onClick={() =>
+                            onAiPhaseHintsChange(
+                              aiPhaseHints.map((value, valueIndex) => (valueIndex === index ? "" : value)),
+                            )
+                          }
+                        >
+                        Any
+                      </FilterChip>
+                      {DIRECTIONS.map((direction) => (
+                        <DirectionSelectChip
+                          key={direction}
+                          direction={direction}
+                          active={hint === direction}
+                          onClick={() =>
+                            onAiPhaseHintsChange(
+                              aiPhaseHints.map((value, valueIndex) => (valueIndex === index ? direction : value)),
+                            )
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={onGenerateAiSuggestions} disabled={isAiLoading || aiCaseInput.trim().length < 10}>
+                {isAiLoading ? "Generating..." : "Generate 3 protocol suggestions"}
+              </Button>
+              <Button variant="outline" onClick={onClearAiAssistant}>
+                Clear
+              </Button>
+            </div>
+
+            {aiError ? (
+              <div className="rounded-[1.25rem] border border-[color:var(--border)] bg-[color:var(--surface)] p-4 text-sm text-[color:var(--up-chip)]">
+                {aiError}
+              </div>
+            ) : null}
+
+            {aiSuggestions.length > 0 ? (
+              <div className="space-y-4">
+                {aiSuggestions.map((suggestion) => (
+                  <AiSuggestionCard
+                    key={suggestion.id}
+                    suggestion={suggestion}
+                    techniquesById={techniquesById}
+                    variationById={variationById}
+                    onApply={() => onApplyAiSuggestion(suggestion)}
+                    onDiscard={() => onDiscardAiSuggestion(suggestion.id)}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </CardContent>
+        ) : null}
       </Card>
 
       <Card>
@@ -976,6 +1235,73 @@ function IconActionButton({
     >
       {children}
     </button>
+  );
+}
+
+function AiSuggestionCard({
+  suggestion,
+  techniquesById,
+  variationById,
+  onApply,
+  onDiscard,
+}: {
+  suggestion: AiSuggestion;
+  techniquesById: Record<string, Technique>;
+  variationById: Record<string, VariationDimension>;
+  onApply: () => void;
+  onDiscard: () => void;
+}) {
+  return (
+    <div className={cn("rounded-[1.25rem] border border-[color:var(--border)] p-4", directionSurfaceClass(suggestion.overallDirection))}>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge>AI suggestion</Badge>
+            <DirectionPill direction={suggestion.overallDirection} />
+          </div>
+          <h3 className="text-lg font-semibold text-[color:var(--foreground)]">{suggestion.title}</h3>
+          <p className="text-sm text-[color:var(--muted-foreground)]">{suggestion.summary}</p>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={onApply}>Use this protocol</Button>
+          <Button variant="outline" onClick={onDiscard}>
+            Discard
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 xl:grid-cols-3">
+        {suggestion.phases.map((phase) => {
+          const technique = techniquesById[phase.techniqueId];
+          const variation = variationById[phase.variationDimensionId];
+
+          return (
+            <div
+              key={`${suggestion.id}-${phase.position}`}
+              className={cn("rounded-[1.25rem] border border-[color:var(--border)] p-3", directionSurfaceClass(phase.direction))}
+            >
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="text-sm font-semibold text-[color:var(--foreground)]">{phase.position}.</div>
+                <DirectionPill direction={phase.direction} compact />
+              </div>
+              <div className="space-y-2">
+                <div className="text-sm font-semibold text-[color:var(--foreground)]">
+                  {technique?.title ?? phase.techniqueId}
+                </div>
+                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--muted-foreground)]">
+                  {variation?.title ?? phase.variationDimensionId}
+                </div>
+                <div className="space-y-1 text-sm text-[color:var(--muted-foreground)]">
+                  <div><strong>A</strong> {phase.variationA}</div>
+                  <div><strong>B</strong> {phase.variationB}</div>
+                  <div><strong>C</strong> {phase.variationC}</div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

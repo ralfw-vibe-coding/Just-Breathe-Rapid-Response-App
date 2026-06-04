@@ -2,6 +2,14 @@
   command = "npm run build"
   publish = "dist"
 
+[functions]
+  included_files = ["requirements/**"]
+
+[[redirects]]
+  from = "/api/ai-protocol-suggestions"
+  to = "/.netlify/functions/ai-protocol-suggestions"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

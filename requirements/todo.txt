@@ -1,0 +1,5 @@
+- bei der suche in der base sollen resultate in reihenfolge ihrer gewichtung angezeigt werden: 
+wenn der suchbegriff im titel vorkommt, ist das gewicht höher, als wenn er in der beschreibung oder how-to vorkommt.
+es gibt also zwei gruppen von resultaten: 1. matches über titel, 2. alle anderen matches.
+in der jeweiligen gruppe sollen die ergebisse alphabetisch angezeigt werden.
+
