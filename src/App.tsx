@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowUpRight,
   CircleX,
   ChevronDown,
   FileText,
+  Info,
+  GitBranchPlus,
+  Plus,
   Search,
   Sparkles,
-  WandSparkles,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +20,10 @@ import { cn } from "@/lib/utils";
 import type { BaseData, Direction, Technique, VariationDimension } from "@/types/base";
 
 type BuilderColumn = {
-  direction: Direction;
+  direction: Direction | "";
   techniqueId: string;
-  variations: string[];
+  variationDimensionId: string;
+  variationValues: string[];
 };
 
 const DIRECTIONS: Direction[] = ["up", "down", "horizontal", "restorative", "functional"];
@@ -41,10 +43,16 @@ const PRESET_PROTOCOLS: Record<Direction, string[]> = {
 };
 
 const DEFAULT_BUILDER: BuilderColumn[] = [
-  { direction: "functional", techniqueId: "", variations: ["", "", ""] },
-  { direction: "down", techniqueId: "", variations: ["", "", ""] },
-  { direction: "horizontal", techniqueId: "", variations: ["", "", ""] },
+  { direction: "", techniqueId: "", variationDimensionId: "", variationValues: ["", "", ""] },
+  { direction: "", techniqueId: "", variationDimensionId: "", variationValues: ["", "", ""] },
+  { direction: "", techniqueId: "", variationDimensionId: "", variationValues: ["", "", ""] },
 ];
+const STORAGE_KEY = "jbr2-custom-protocol";
+
+type PersistedBuilderState = {
+  overallDirection: Direction | "";
+  builder: BuilderColumn[];
+};
 
 function App() {
   const [base, setBase] = useState<BaseData | null>(null);
@@ -54,8 +62,9 @@ function App() {
   const [directionFilter, setDirectionFilter] = useState<Direction | "all">("all");
   const [mobileTab, setMobileTab] = useState("base");
   const [openTechniqueId, setOpenTechniqueId] = useState<string | null>(null);
-  const [overallDirection, setOverallDirection] = useState<Direction>("down");
+  const [overallDirection, setOverallDirection] = useState<Direction | "">("");
   const [builder, setBuilder] = useState<BuilderColumn[]>(DEFAULT_BUILDER);
+  const [hasHydratedBuilder, setHasHydratedBuilder] = useState(false);
 
   useEffect(() => {
     async function loadBase() {
@@ -77,6 +86,73 @@ function App() {
 
     void loadBase();
   }, []);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        setHasHydratedBuilder(true);
+        return;
+      }
+
+      const parsed = JSON.parse(raw) as Partial<PersistedBuilderState>;
+      if (!parsed || !Array.isArray(parsed.builder) || parsed.builder.length !== 3) {
+        setHasHydratedBuilder(true);
+        return;
+      }
+
+      setOverallDirection(
+        parsed.overallDirection === "" || DIRECTIONS.includes(parsed.overallDirection as Direction)
+          ? (parsed.overallDirection as Direction | "")
+          : "",
+      );
+      setBuilder(
+        parsed.builder.map((column) => ({
+          direction:
+            column.direction === "" || DIRECTIONS.includes(column.direction as Direction)
+              ? (column.direction as Direction | "")
+              : "",
+          techniqueId: typeof column.techniqueId === "string" ? column.techniqueId : "",
+          variationDimensionId:
+            typeof column.variationDimensionId === "string" ? column.variationDimensionId : "",
+          variationValues:
+            Array.isArray(column.variationValues) && column.variationValues.length === 3
+              ? column.variationValues.map((value) => (typeof value === "string" ? value : ""))
+              : ["", "", ""],
+        })),
+      );
+      setHasHydratedBuilder(true);
+    } catch {
+      window.localStorage.removeItem(STORAGE_KEY);
+      setHasHydratedBuilder(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydratedBuilder) {
+      return;
+    }
+
+    const payload: PersistedBuilderState = {
+      overallDirection,
+      builder,
+    };
+
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  }, [overallDirection, builder, hasHydratedBuilder]);
+
+  useEffect(() => {
+    if (!openTechniqueId) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      const element = document.getElementById(`technique-${openTechniqueId}`);
+      element?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [mobileTab, openTechniqueId]);
 
   const allTechniques = base?.techniques ?? [];
   const techniquesById = Object.fromEntries(allTechniques.map((technique) => [technique.id, technique]));
@@ -106,9 +182,12 @@ function App() {
     })
     .sort((a, b) => a.title.localeCompare(b.title));
 
-  const suggestedProtocols = PRESET_PROTOCOLS[overallDirection]
-    .map((id) => techniquesById[id])
-    .filter((technique): technique is Technique => Boolean(technique));
+  const suggestedProtocols =
+    overallDirection === ""
+      ? []
+      : PRESET_PROTOCOLS[overallDirection]
+          .map((id) => techniquesById[id])
+          .filter((technique): technique is Technique => Boolean(technique));
 
   function updateColumn(index: number, next: Partial<BuilderColumn>) {
     setBuilder((current) =>
@@ -125,7 +204,7 @@ function App() {
 
         return {
           ...column,
-          variations: column.variations.map((variation, currentVariationIndex) =>
+          variationValues: column.variationValues.map((variation, currentVariationIndex) =>
             currentVariationIndex === variationIndex ? value : variation,
           ),
         };
@@ -139,7 +218,8 @@ function App() {
       return {
         direction: (child?.dimensions.direction[0] ?? protocol.dimensions.direction[0] ?? "functional") as Direction,
         techniqueId: mode === "full" ? child?.id ?? "" : "",
-        variations: ["", "", ""],
+        variationDimensionId: "",
+        variationValues: ["", "", ""],
       };
     });
 
@@ -153,6 +233,23 @@ function App() {
 
   function resetBuilder() {
     setBuilder(DEFAULT_BUILDER);
+    setOverallDirection("");
+    window.localStorage.removeItem(STORAGE_KEY);
+  }
+
+  function applyTechniqueToColumn(index: number, technique: Technique) {
+    updateColumn(index, {
+      direction: technique.dimensions.direction[0] ?? "",
+      techniqueId: technique.id,
+      variationDimensionId: "",
+      variationValues: ["", "", ""],
+    });
+    setMobileTab("builder");
+  }
+
+  function revealInBase(techniqueId: string) {
+    setOpenTechniqueId(techniqueId);
+    setMobileTab("base");
   }
 
   if (loading) {
@@ -217,6 +314,8 @@ function App() {
             singles={singles}
             variationById={variationById}
             onApplyProtocol={applyProtocol}
+            onApplyTechniqueToColumn={applyTechniqueToColumn}
+            onRevealInBase={revealInBase}
             onReset={resetBuilder}
             onUpdateColumn={updateColumn}
             onUpdateVariation={updateVariation}
@@ -245,6 +344,8 @@ function App() {
           singles={singles}
           variationById={variationById}
           onApplyProtocol={applyProtocol}
+          onApplyTechniqueToColumn={applyTechniqueToColumn}
+          onRevealInBase={revealInBase}
           onReset={resetBuilder}
           onUpdateColumn={updateColumn}
           onUpdateVariation={updateVariation}
@@ -301,7 +402,7 @@ function BasePanel({
   techniquesById,
 }: BasePanelProps) {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden lg:sticky lg:top-6 lg:flex lg:h-[calc(100vh-3rem)] lg:flex-col">
       <CardHeader className="gap-4 border-b border-[color:var(--border)] bg-[color:var(--panel)]">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -347,7 +448,7 @@ function BasePanel({
         </div>
       </CardHeader>
 
-      <CardContent className="max-h-[70vh] overflow-y-auto p-3">
+      <CardContent className="min-h-0 overflow-y-auto p-3 lg:flex-1">
         <div className="space-y-3">
           {techniques.map((technique) => (
             <TechniqueListItem
@@ -390,6 +491,7 @@ function TechniqueListItem({
 
   return (
     <div
+      id={depth === 0 ? `technique-${technique.id}` : undefined}
       className={cn(
         "rounded-[1.25rem] border border-[color:var(--border)]",
         directionSurfaceClass(primaryDirection),
@@ -467,14 +569,16 @@ function TechniqueListItem({
 }
 
 type BuilderPanelProps = {
-  overallDirection: Direction;
-  onOverallDirectionChange: (direction: Direction) => void;
+  overallDirection: Direction | "";
+  onOverallDirectionChange: (direction: Direction | "") => void;
   suggestedProtocols: Technique[];
   techniquesById: Record<string, Technique>;
   builder: BuilderColumn[];
   singles: Technique[];
   variationById: Record<string, VariationDimension>;
   onApplyProtocol: (protocol: Technique, mode: "full" | "directions") => void;
+  onApplyTechniqueToColumn: (index: number, technique: Technique) => void;
+  onRevealInBase: (techniqueId: string) => void;
   onReset: () => void;
   onUpdateColumn: (index: number, next: Partial<BuilderColumn>) => void;
   onUpdateVariation: (index: number, variationIndex: number, value: string) => void;
@@ -489,6 +593,8 @@ function BuilderPanel({
   singles,
   variationById,
   onApplyProtocol,
+  onApplyTechniqueToColumn,
+  onRevealInBase,
   onReset,
   onUpdateColumn,
   onUpdateVariation,
@@ -512,14 +618,13 @@ function BuilderPanel({
               <Button variant="outline" onClick={onReset}>
                 Reset matrix
               </Button>
-              <Button variant="secondary">
-                <WandSparkles className="h-4 w-4" />
-                Future AI Assist
-              </Button>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <FilterChip active={overallDirection === ""} onClick={() => onOverallDirectionChange("")}>
+              None
+            </FilterChip>
             {DIRECTIONS.map((direction) => (
               <FilterChip
                 key={direction}
@@ -538,22 +643,28 @@ function BuilderPanel({
         <CardHeader>
           <CardTitle className="text-2xl">Protocol inspiration</CardTitle>
           <CardDescription>
-            Suggested from the selected overall direction. Use a full protocol, or borrow only its column directions.
+            Suggested from the selected overall direction. Use a full protocol, borrow only its directions, or place a single technique into its matching column.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {suggestedProtocols.length === 0 ? (
+          {overallDirection === "" ? (
+            <div className="rounded-[1.25rem] border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-6 text-sm text-[color:var(--muted-foreground)]">
+              Choose an overall direction to see protocol suggestions.
+            </div>
+          ) : suggestedProtocols.length === 0 ? (
             <div className="rounded-[1.25rem] border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-6 text-sm text-[color:var(--muted-foreground)]">
               No curated protocol is currently mapped to this direction. You can still build your sequence manually below.
             </div>
           ) : (
-            <div className="grid gap-4 xl:grid-cols-2">
+            <div className="space-y-4">
               {suggestedProtocols.map((protocol) => (
                 <ProtocolSuggestionCard
                   key={protocol.id}
                   protocol={protocol}
                   techniquesById={techniquesById}
                   onApplyProtocol={onApplyProtocol}
+                  onApplyTechniqueToColumn={onApplyTechniqueToColumn}
+                  onRevealInBase={onRevealInBase}
                 />
               ))}
             </div>
@@ -563,7 +674,7 @@ function BuilderPanel({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">3x3 matrix</CardTitle>
+          <CardTitle className="text-2xl">Custom protocol</CardTitle>
           <CardDescription>
             Columns are the three techniques. Rows are the three variations for each technique.
           </CardDescription>
@@ -571,42 +682,57 @@ function BuilderPanel({
         <CardContent>
           <div className="grid gap-4 xl:grid-cols-3">
             {builder.map((column, index) => {
-              const matchingTechniques = singles.filter((technique) => technique.dimensions.direction.includes(column.direction));
+              const matchingTechniques =
+                column.direction === ""
+                  ? []
+                  : singles
+                      .filter((technique) => technique.dimensions.direction.includes(column.direction as Direction))
+                      .sort((a, b) => a.title.localeCompare(b.title));
               const selectedTechnique = column.techniqueId ? techniquesById[column.techniqueId] : null;
               const availableVariationIds = selectedTechnique?.variationDimensions ?? [];
 
               return (
                 <Card key={index} className="bg-[color:var(--surface)]">
                   <CardHeader>
-                    <div className="flex items-center justify-between gap-3">
-                      <Badge variant="outline">Column {index + 1}</Badge>
-                      <DirectionPill direction={column.direction} />
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="text-4xl font-[var(--font-display)] leading-none text-[color:var(--muted-foreground)]">
+                        {index + 1}.
+                      </div>
+                      <div className="flex max-w-[70%] flex-wrap justify-end gap-2">
+                        {DIRECTIONS.map((direction) => (
+                          <DirectionSelectChip
+                            key={direction}
+                            direction={direction}
+                            active={column.direction === direction}
+                            onClick={() =>
+                              onUpdateColumn(index, {
+                                direction,
+                                techniqueId: "",
+                                variationDimensionId: "",
+                                variationValues: ["", "", ""],
+                              })
+                            }
+                          />
+                        ))}
+                      </div>
                     </div>
-                    <CardTitle className="text-2xl">Phase {index + 1}</CardTitle>
-                    <CardDescription>Set direction, technique, and three matching variations.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-[color:var(--muted-foreground)]">Direction</label>
-                      <select
-                        className="field-select"
-                        value={column.direction}
-                        onChange={(event) => onUpdateColumn(index, { direction: event.target.value as Direction, techniqueId: "", variations: ["", "", ""] })}
-                      >
-                        {DIRECTIONS.map((direction) => (
-                          <option key={direction} value={direction}>
-                            {DIRECTION_LABELS[direction]}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-[color:var(--muted-foreground)]">Technique</label>
+                    {column.direction === "" ? (
+                      <div className="rounded-[1rem] border border-dashed border-[color:var(--border)] bg-[color:var(--card)] px-4 py-3 text-sm text-[color:var(--muted-foreground)]">
+                        Choose a direction first.
+                      </div>
+                    ) : (
                       <select
                         className="field-select"
                         value={column.techniqueId}
-                        onChange={(event) => onUpdateColumn(index, { techniqueId: event.target.value, variations: ["", "", ""] })}
+                        onChange={(event) =>
+                          onUpdateColumn(index, {
+                            techniqueId: event.target.value,
+                            variationDimensionId: "",
+                            variationValues: ["", "", ""],
+                          })
+                        }
                       >
                         <option value="">Choose a technique</option>
                         {matchingTechniques.map((technique) => (
@@ -615,7 +741,7 @@ function BuilderPanel({
                           </option>
                         ))}
                       </select>
-                    </div>
+                    )}
 
                     {selectedTechnique ? (
                       <>
@@ -627,6 +753,20 @@ function BuilderPanel({
                             ))}
                           </div>
                           <p className="mt-3 text-sm text-[color:var(--muted-foreground)] line-clamp-5">{selectedTechnique.text}</p>
+                          {selectedTechnique.howTo?.length ? (
+                            <div className="mt-4 space-y-2">
+                              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">
+                                How to
+                              </div>
+                              <ol className="space-y-1 pl-5 text-sm text-[color:var(--muted-foreground)]">
+                                {selectedTechnique.howTo.map((step, stepIndex) => (
+                                  <li key={stepIndex} className="list-decimal">
+                                    {step}
+                                  </li>
+                                ))}
+                              </ol>
+                            </div>
+                          ) : null}
                         </div>
 
                         <Separator />
@@ -636,38 +776,67 @@ function BuilderPanel({
                             <FileText className="h-4 w-4" />
                             Variations
                           </div>
-                          {[0, 1, 2].map((variationIndex) => (
-                            <div key={variationIndex} className="space-y-2">
-                              <label className="text-sm font-medium text-[color:var(--foreground)]">
-                                Variation {variationIndex + 1}
-                              </label>
-                              <select
-                                className="field-select"
-                                value={column.variations[variationIndex]}
-                                onChange={(event) => onUpdateVariation(index, variationIndex, event.target.value)}
-                              >
-                                <option value="">Choose a variation dimension</option>
-                                {availableVariationIds.map((variationId) => {
-                                  const variation = variationById[variationId];
-                                  return (
-                                    <option key={variationId} value={variationId}>
-                                      {variation?.title ?? variationId}
-                                    </option>
-                                  );
-                                })}
-                              </select>
-                              {column.variations[variationIndex] ? (
-                                <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card)] p-3 text-sm text-[color:var(--muted-foreground)]">
-                                  {variationById[column.variations[variationIndex]]?.text}
+                          <select
+                            className="field-select"
+                            value={column.variationDimensionId}
+                            onChange={(event) =>
+                              onUpdateColumn(index, {
+                                variationDimensionId: event.target.value,
+                                variationValues: [
+                                  variationById[event.target.value]?.text ?? "",
+                                  "",
+                                  "",
+                                ],
+                              })
+                            }
+                          >
+                            <option value="">Choose a variation dimension</option>
+                            {availableVariationIds.map((variationId) => {
+                              const variation = variationById[variationId];
+                              return (
+                                <option key={variationId} value={variationId}>
+                                  {variation?.title ?? variationId}
+                                </option>
+                              );
+                            })}
+                          </select>
+                          {(["A", "B", "C"] as const).map((label, variationIndex) => (
+                            <div key={label} className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-5 text-sm font-semibold text-[color:var(--muted-foreground)]">
+                                  {label}
                                 </div>
-                              ) : null}
+                                <div className="relative flex-1">
+                                  <textarea
+                                    className={cn(
+                                      "flex w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-3 pr-11 text-sm text-[color:var(--foreground)] outline-none transition-colors placeholder:text-[color:var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[color:var(--ring)] resize-y",
+                                      variationIndex === 0 ? "min-h-32" : "min-h-24",
+                                    )}
+                                    value={column.variationValues[variationIndex]}
+                                    onChange={(event) => onUpdateVariation(index, variationIndex, event.target.value)}
+                                    placeholder={`Describe variation ${label}`}
+                                  />
+                                  {column.variationValues[variationIndex] ? (
+                                    <button
+                                      type="button"
+                                      aria-label={`Clear variation ${label}`}
+                                      className="absolute right-3 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-[color:var(--muted-foreground)] transition-colors hover:bg-[color:var(--surface-strong)] hover:text-[color:var(--foreground)]"
+                                      onClick={() => onUpdateVariation(index, variationIndex, "")}
+                                    >
+                                      <CircleX className="h-4 w-4" />
+                                    </button>
+                                  ) : null}
+                                </div>
+                              </div>
                             </div>
                           ))}
                         </div>
                       </>
                     ) : (
                       <div className="rounded-[1.25rem] border border-dashed border-[color:var(--border)] bg-[color:var(--card)] p-4 text-sm text-[color:var(--muted-foreground)]">
-                        Pick a technique that matches the current column direction. The variation choices will appear afterwards.
+                        {column.direction === ""
+                          ? "Choose a direction first. Then you can pick a matching technique and define the three variations."
+                          : "Pick a technique that matches the current column direction. The variation choices will appear afterwards."}
                       </div>
                     )}
                   </CardContent>
@@ -685,24 +854,42 @@ function ProtocolSuggestionCard({
   protocol,
   techniquesById,
   onApplyProtocol,
+  onApplyTechniqueToColumn,
+  onRevealInBase,
 }: {
   protocol: Technique;
   techniquesById: Record<string, Technique>;
   onApplyProtocol: (protocol: Technique, mode: "full" | "directions") => void;
+  onApplyTechniqueToColumn: (index: number, technique: Technique) => void;
+  onRevealInBase: (techniqueId: string) => void;
 }) {
   return (
-    <Card className="bg-[color:var(--surface)]">
-      <CardHeader>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge>{protocol.title}</Badge>
-          {protocol.dimensions.direction.map((direction) => (
-            <DirectionPill key={direction} direction={direction} compact />
-          ))}
+    <div className={cn("rounded-[1.25rem] border border-[color:var(--border)]", directionSurfaceClass(protocol.dimensions.direction[0]))}>
+      <div className="flex items-start justify-between gap-3 p-4">
+        <div className="flex-1 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge>Protocol</Badge>
+            {protocol.dimensions.response ? <Badge variant="outline">{labelize(protocol.dimensions.response)}</Badge> : null}
+            {protocol.dimensions.direction.map((direction) => (
+              <DirectionPill key={direction} direction={direction} compact />
+            ))}
+          </div>
+          <h3 className="text-lg font-semibold text-[color:var(--foreground)]">{protocol.title}</h3>
         </div>
-        <CardDescription>{protocol.text}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="flex shrink-0 gap-2">
+          <IconActionButton label={`Show ${protocol.title} in base`} onClick={() => onRevealInBase(protocol.id)}>
+            <Info className="h-4 w-4" />
+          </IconActionButton>
+          <IconActionButton label="Use column directions" onClick={() => onApplyProtocol(protocol, "directions")}>
+            <GitBranchPlus className="h-4 w-4" />
+          </IconActionButton>
+          <IconActionButton label="Use full protocol" onClick={() => onApplyProtocol(protocol, "full")}>
+            <Plus className="h-4 w-4" />
+          </IconActionButton>
+        </div>
+      </div>
+      <div className="border-t border-[color:var(--border)] px-4 pb-4 pt-4">
+        <div className="grid grid-cols-3 gap-3">
           {protocol.children?.map((childId, index) => {
             const child = techniquesById[childId];
             if (!child) {
@@ -710,31 +897,88 @@ function ProtocolSuggestionCard({
             }
 
             return (
-              <div key={`${childId}-${index}`} className={cn("rounded-[1.25rem] p-4", directionSurfaceClass(child.dimensions.direction[0]))}>
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <Badge variant="outline">Step {index + 1}</Badge>
-                  <ArrowUpRight className="h-4 w-4 text-[color:var(--muted-foreground)]" />
+              <div
+                key={`${childId}-${index}`}
+                className={cn(
+                  "min-w-0 rounded-[1.25rem] border border-[color:var(--border)] p-3",
+                  directionSurfaceClass(child.dimensions.direction[0]),
+                )}
+              >
+                <div className="mb-3 flex items-start justify-between gap-2">
+                  <DirectionPill direction={child.dimensions.direction[0]} compact />
+                  <div className="flex gap-2">
+                    <IconActionButton label={`Show ${child.title} in base`} onClick={() => onRevealInBase(child.id)}>
+                      <Info className="h-4 w-4" />
+                    </IconActionButton>
+                    <IconActionButton label={`Use ${child.title} in column ${index + 1}`} onClick={() => onApplyTechniqueToColumn(index, child)}>
+                      <Plus className="h-4 w-4" />
+                    </IconActionButton>
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <DirectionPill direction={child.dimensions.direction[0]} />
-                  <h4 className="font-semibold text-[color:var(--foreground)]">{child.title}</h4>
-                  <p className="text-sm text-[color:var(--muted-foreground)] line-clamp-4">{child.text}</p>
+                  <h4 className="text-sm font-semibold text-[color:var(--foreground)]">{child.title}</h4>
                 </div>
               </div>
             );
           })}
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={() => onApplyProtocol(protocol, "full")}>Use full protocol</Button>
-          <Button variant="outline" onClick={() => onApplyProtocol(protocol, "directions")}>
-            Use column directions
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
+
+function IconActionButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-[color:var(--border)] bg-[color:var(--card)] text-[color:var(--muted-foreground)] transition-all hover:scale-105 hover:bg-[color:var(--surface-strong)] hover:text-[color:var(--foreground)]"
+    >
+      {children}
+    </button>
+  );
+}
+
+function DirectionSelectChip({
+  direction,
+  active,
+  onClick,
+}: {
+  direction: Direction;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-3 py-2 text-sm font-semibold transition-all cursor-pointer",
+        active
+          ? "scale-[1.02] border-transparent shadow-sm"
+          : "border-[color:var(--border)] bg-[color:var(--card)] text-[color:var(--muted-foreground)] hover:bg-[color:var(--surface-strong)] hover:text-[color:var(--foreground)]",
+        direction === "up" && active && "bg-[color:var(--up-chip)] text-[color:var(--up-chip-fg)]",
+        direction === "down" && active && "bg-[color:var(--down-chip)] text-[color:var(--down-chip-fg)]",
+        direction === "horizontal" && active && "bg-[color:var(--horizontal-chip)] text-[color:var(--horizontal-chip-fg)]",
+        direction === "restorative" && active && "bg-[color:var(--restorative-chip)] text-[color:var(--restorative-chip-fg)]",
+        direction === "functional" && active && "bg-[color:var(--functional-chip)] text-[color:var(--functional-chip-fg)]",
+      )}
+    >
+      {DIRECTION_LABELS[direction]}
+    </button>
+  );
+}
+
 
 function FilterChip({
   active,
