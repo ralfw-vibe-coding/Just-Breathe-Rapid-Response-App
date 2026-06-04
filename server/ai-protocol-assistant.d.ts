@@ -7,6 +7,7 @@ export function generateProtocolSuggestions(args: {
     id: string;
     title: string;
     summary: string;
+    rationale: string;
     overallDirection: string;
     phases: Array<{
       position: number;

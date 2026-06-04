@@ -1,6 +1,5 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 const DIRECTIONS = ["up", "down", "horizontal", "restorative", "functional"];
 const STORAGE_SCHEMA = {
@@ -21,6 +20,7 @@ const STORAGE_SCHEMA = {
             id: { type: "string" },
             title: { type: "string" },
             summary: { type: "string" },
+            rationale: { type: "string" },
             overallDirection: { type: "string", enum: DIRECTIONS },
             phases: {
               type: "array",
@@ -50,7 +50,7 @@ const STORAGE_SCHEMA = {
               }
             }
           },
-          required: ["id", "title", "summary", "overallDirection", "phases"]
+          required: ["id", "title", "summary", "rationale", "overallDirection", "phases"]
         }
       }
     },
@@ -85,8 +85,7 @@ async function getEnvValue(key) {
     return process.env[key];
   }
 
-  const requirementsDir = await findProjectRoot();
-  const envPath = path.join(requirementsDir, ".env");
+  const envPath = path.join(process.cwd(), ".env");
 
   try {
     const text = await readFile(envPath, "utf8");
@@ -97,35 +96,46 @@ async function getEnvValue(key) {
   }
 }
 
-async function findProjectRoot() {
-  const currentFile = fileURLToPath(import.meta.url);
-  const currentDir = path.dirname(currentFile);
-
+async function findKnowledgeBaseFiles() {
   const candidates = [
-    process.cwd(),
-    path.resolve(currentDir, ".."),
-    path.resolve(currentDir, "../.."),
-    process.env.LAMBDA_TASK_ROOT || ""
-  ].filter(Boolean);
+    {
+      manual: path.join(process.cwd(), "requirements", "manual.txt"),
+      techniques: path.join(process.cwd(), "requirements", "techniques.json")
+    },
+    {
+      manual: path.join(process.cwd(), "manual.txt"),
+      techniques: path.join(process.cwd(), "techniques.json")
+    },
+    {
+      manual: path.join(process.env.LAMBDA_TASK_ROOT || "", "requirements", "manual.txt"),
+      techniques: path.join(process.env.LAMBDA_TASK_ROOT || "", "requirements", "techniques.json")
+    },
+    {
+      manual: path.join(process.env.LAMBDA_TASK_ROOT || "", "manual.txt"),
+      techniques: path.join(process.env.LAMBDA_TASK_ROOT || "", "techniques.json")
+    }
+  ].filter((candidate) => candidate.manual && candidate.techniques);
 
   for (const candidate of candidates) {
-    const requirementsPath = path.join(candidate, "requirements", "techniques.json");
     try {
-      await readFile(requirementsPath, "utf8");
+      await Promise.all([
+        readFile(candidate.manual, "utf8"),
+        readFile(candidate.techniques, "utf8")
+      ]);
       return candidate;
     } catch {
       continue;
     }
   }
 
-  throw new Error("Could not locate project root with requirements directory.");
+  throw new Error("Could not locate manual.txt and techniques.json for the AI knowledge base.");
 }
 
 async function loadKnowledgeBase() {
-  const root = await findProjectRoot();
+  const files = await findKnowledgeBaseFiles();
   const [manualText, techniquesText] = await Promise.all([
-    readFile(path.join(root, "requirements", "manual.txt"), "utf8"),
-    readFile(path.join(root, "requirements", "techniques.json"), "utf8")
+    readFile(files.manual, "utf8"),
+    readFile(files.techniques, "utf8")
   ]);
 
   const techniques = JSON.parse(techniquesText);
@@ -238,6 +248,7 @@ export async function generateProtocolSuggestions({
     "For each phase, choose one technique whose direction list includes that phase direction.",
     "For each chosen technique, choose exactly one valid variation dimension from that technique's allowed variationDimensions.",
     "Then generate three concrete variations A, B, and C that fit the client case and the chosen variation dimension.",
+    "For each suggestion, provide a clear rationale grounded in the client presentation: what was observed, what the client reported, and why this sequence fits.",
     "Keep summaries concise and practical.",
     "Return valid JSON only."
   ].join("\n");

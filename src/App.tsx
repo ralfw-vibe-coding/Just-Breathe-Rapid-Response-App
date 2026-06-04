@@ -40,6 +40,7 @@ type AiSuggestion = {
   id: string;
   title: string;
   summary: string;
+  rationale: string;
   overallDirection: Direction;
   phases: AiSuggestionPhase[];
 };
@@ -1284,6 +1285,12 @@ function AiSuggestionCard({
           </div>
           <h3 className="text-lg font-semibold text-[color:var(--foreground)]">{suggestion.title}</h3>
           <p className="text-sm text-[color:var(--muted-foreground)]">{suggestion.summary}</p>
+          <div className="rounded-[1rem] border border-[color:var(--border)] bg-[color:var(--card)] p-3 text-sm text-[color:var(--muted-foreground)]">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--foreground)]">
+              Why this fits
+            </div>
+            {suggestion.rationale}
+          </div>
         </div>
         <div className="flex gap-2">
           <Button onClick={onApply}>Use this protocol</Button>
