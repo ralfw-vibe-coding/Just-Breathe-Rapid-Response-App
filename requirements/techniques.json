@@ -1,0 +1,838 @@
+{
+  "variationDimensions": [
+    {
+      "id": "counting",
+      "title": "COUNTING VARIATIONS",
+      "text": "When practicing a technique we can vary the number of breaths we take. For example; in box breathing, we can change and increase from 4:4:4:4 to 6:6:6:6 or 8:8:8:8 or in cleansing and clearing breath we could increase from 1 x 30 / 1 x 60 / 1 x 90."
+    },
+    {
+      "id": "touch",
+      "title": "TOUCH VARIATIONS",
+      "text": "When practicing with touch variation we can use our hands to create different breath focus. For example in 3-part breath we can practice, both hands on belly, one hand of belly and one of chest and then finally, hands rest in the lap (no touch.)"
+    },
+    {
+      "id": "rounds",
+      "title": "NUMBER OF ROUNDS VARIATIONS",
+      "text": "When practicing with rounds variation we can vary the quantity of repetitive amount of cycles per technique execution. For example in cleansing & clearing breath we could change and increase each round from 1 x 30 / 3 x 30 / 5 x 30."
+    },
+    {
+      "id": "gaze",
+      "title": "THE GAZE VARIATIONS",
+      "text": "When practicing with the variations of the gaze, we are speaking about where the eyes are or how we place our vision. For example in the even breath, we can give variation by practicing; eyes open, narrowed gaze, eyes closed."
+    },
+    {
+      "id": "speed-pace",
+      "title": "SPEED & PACE VARIATIONS",
+      "text": "When practicing with speed & pace we can change the timing and space between the breaths. For example in cleansing & clearing breathe we could change the pace from 1 x 30 slow / 1 x 30 moderate / 1 x 30 fast."
+    },
+    {
+      "id": "energy-effort",
+      "title": "ENERGY & EFFORT VARIATIONS",
+      "text": "When practicing with energy and effort variations we can adapt the heat and enthusiasm within the chosen technique. For example with the extended exhale breath your could offer options of gentle exhale, intentional clearing, forced clearing."
+    },
+    {
+      "id": "nose-mouth",
+      "title": "NOSE & MOUTH VARIATIONS",
+      "text": "When practicing with nose & mouth variation we have the option of directing or redirecting the air flow. For example, in the interrupted inhale we can vary the extended exhale from mouth closed, to mouth open to a sign."
+    },
+    {
+      "id": "support",
+      "title": "SUPPORT VARIATIONS",
+      "text": "When practicing with support variations we are offering supportive or held variations. For example in alternate nostril breathing you practice; standard offering, non-used hand tucked across the body in the arm pit, and finally both hands tucked across the body (with no hands on nose and practicing subtly.)"
+    },
+    {
+      "id": "volume",
+      "title": "VOLUME VARIATIONS",
+      "text": "When practicing with volume variation we can alter the sound or the breath in audible techniques. For example in the humming breath, we could vary at volumes of quiet, moderate to loud."
+    },
+    {
+      "id": "seat-position",
+      "title": "SEAT POSITIONS VARIATIONS",
+      "text": "When practicing with a variation in your seat, is to simply change your seat position. In many practices you could offer from; seated, reclined or rested on the floor as a practice progression."
+    }
+  ],
+  "techniques": [
+    {
+      "id": "energising-breath",
+      "title": "Energising breath",
+      "text": "This practice invites the participant to constrict the epiglottis in order to wash the breath across the back of the throat, helping to regulate the breath, warms and energise the body and calm the mind.",
+      "howTo": [
+        "Hold your palm in front of your mouth and breath air out in the same way that you would if you were fogging up a mirror, creating a gentle washing sound. Notice the activation at the back of your throat",
+        "Keep your hand where it is and inhale making the same sound",
+        "Practice for a few rounds",
+        "Now, begin to use this same activation of the throat but seal your lips on the exhale and breath out through your nose",
+        "Practice for a few rounds",
+        "Now, close your mouth and breath in and out through the nose so that the sound of the breath is the same on the inhale and exhale",
+        "Practice for one minute and release"
+      ],
+      "dimensions": {
+        "direction": ["up"],
+        "temperature": "warming",
+        "structure": "single"
+      },
+      "variationDimensions": ["energy-effort", "nose-mouth", "rounds"]
+    },
+    {
+      "id": "cleansing-and-clearing",
+      "title": "Cleansing and clearing",
+      "text": "A breathing technique in which the exhalation is active and the inhalation is passive. Creating heat in the body and strengthening the abdomen, as well as aiding digestion and clearing the nadis.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Bring your awareness to you lower belly",
+        "Take a long breath in through your nose",
+        "Contract the muscles in the abdomen in quick but regulated succession to force out short exhalations; the inhalation will be a passive reaction to your active exhalation",
+        "Continue this active exhalation for one minute",
+        "Inhale deeply through the nostrils and exhale slowly through the mouth"
+      ],
+      "dimensions": {
+        "direction": ["up"],
+        "temperature": "warming",
+        "structure": "single"
+      },
+      "variationDimensions": ["counting", "rounds", "speed-pace", "energy-effort", "seat-position"]
+    },
+    {
+      "id": "bellows-breath",
+      "title": "Bellows breath",
+      "text": "A breathing technique in which both the inhalation and exhalation come from active contractions of the abdominals and diaphragm. Helping to strengthen the abdomen, drain excess mucus from the lungs, and energise both the body and mind.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Take a long breath in and out through the nose",
+        "Take another long breath in and exhale by quickly contracting the abdominal muscles",
+        "Follow this with a quick diaphragmatic inhale so that the breath moves into and out of the lungs in quick succession",
+        "Continue for one minute",
+        "When you have finished take a long slow breath in through the nose and out through the mouth"
+      ],
+      "dimensions": {
+        "direction": ["up"],
+        "temperature": "warming",
+        "structure": "single"
+      },
+      "variationDimensions": ["speed-pace", "rounds", "energy-effort", "seat-position"]
+    },
+    {
+      "id": "3-part-interrupted-inhale",
+      "title": "3-Part interrupted inhale",
+      "text": "Brief pauses are taken during the inhale. The practice introduces the concept of expanding the length and capacity of the inhalation.",
+      "howTo": [
+        "Find a comfortable seat or reclined position",
+        "Take a few clearing breaths",
+        "On the next inhale fill the lungs to just one third of their capacity",
+        "Take a short pause",
+        "Fill the next third",
+        "Take a short pause",
+        "Fill the final third, or until the lungs are full with air",
+        "Take a final short pause",
+        "Exhale fully"
+      ],
+      "dimensions": {
+        "direction": ["up"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["nose-mouth", "seat-position", "counting"]
+    },
+    {
+      "id": "lions-breath",
+      "title": "Lion's breath",
+      "text": "Lion's Breath is a technique to clear stale air in the body and stimulate the senses. Used in practice to immediate de-stimulate and reduce stress in the body.",
+      "howTo": [
+        "Lean the upper body forward slightly",
+        "Inhale through your nose with your mouth closed.",
+        "Open your mouth wide and stick out your tongue as much as you can, curling it down toward your chin.",
+        "Exhale forcefully with a “ha” sound, feeling the breath come from deep within and passing across your entire tongue.",
+        "Repeat 5-10 times"
+      ],
+      "dimensions": {
+        "direction": ["up"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["energy-effort", "rounds", "nose-mouth"]
+    },
+    {
+      "id": "circular-nostril-breathing-warming-and-energising",
+      "title": "Circular nostril breathing (warming and energising)",
+      "text": "Breathing practice in which we inhale only through the right nostril and exhale through the left. Encourages flow of breath through the respiratory system creating heat and energy within the body. Strengthens energy, willpower and enthusiasm.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Lift your right hand to the nose",
+        "Use your ring finger to close off your left nostril and breath in through your right nostril",
+        "Close the right nostril with your thumb, releasing left nostril and exhale through the left nostril",
+        "Continue in this way, inhaling through the right nostril and exhaling through the left for 1-3 minutes"
+      ],
+      "dimensions": {
+        "direction": ["up"],
+        "temperature": "warming",
+        "structure": "single"
+      },
+      "variationDimensions": ["support", "seat-position", "rounds"]
+    },
+    {
+      "id": "opposite-alternate-nostril-breathing-inhale",
+      "title": "Opposite alternate nostril breathing (inhale)",
+      "text": "A breathing technique in which the participant inhales through alternating nostrils whilst exhaling through both. Helps to calm and focus the mind, as well as an aid to balance emotions.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Lift your right hand to the nose",
+        "Use your thumb to seal off your right nostril and breath in through your left nostril",
+        "Release the seal and exhale through both nostrils",
+        "Seal your left nostril using your ring finger and inhale through your right nostril",
+        "Release the seal and exhale again through both",
+        "This is one round, continue for 10 rounds"
+      ],
+      "dimensions": {
+        "direction": ["up", "horizontal"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["support", "seat-position", "rounds"]
+    },
+    {
+      "id": "elephant-breath",
+      "title": "Elephant breath",
+      "text": "This breathing practice is a dynamic and invigorating technique to stimulate and energise the body. This technique helps to increases oxygen levels in the bloodstream, temporarily stimulating the sympathetic nervous system, circulating more blood flow, and gently heating the physical body.",
+      "howTo": [
+        "Stand with your feet shoulder width apart, knees slightly bent",
+        "Inhale quickly through your nose as you swing your arms forward and up overhead",
+        "Exhale quickly through your nose as you bend your knees and fold forward, keep your arms heavy",
+        "Repeat for a few rounds",
+        "Pause in stillness and come back to your natural breath"
+      ],
+      "dimensions": {
+        "direction": ["up"],
+        "temperature": "warming",
+        "structure": "single"
+      },
+      "variationDimensions": ["energy-effort", "rounds", "speed-pace"]
+    },
+    {
+      "id": "breath-of-joy",
+      "title": "Breath of joy",
+      "text": "Breath of Joy is a dynamic breathing technique designed to invigorate the body and uplift the sensation response in the body. In this practice, deep inhalations are accompanied by vigorous arm movements, followed by a forceful exhalation through the mouth. This rhythmic breathing pattern floods the body with oxygen, awakening the senses and energizing the mind. It releases tension, enhances circulation, and promotes mental clarity.",
+      "howTo": [
+        "Stand with your feet shoulder width apart, knees slightly bent",
+        "Inhale one third of the breath through your nose as you swing your arms forward and up overhead",
+        "Inhale the next third of the breath through your nose as you swing your arms out to the side",
+        "Inhale to full capacity through your nose as you swing your arms forward and up overhead",
+        "Take a big exhale through your mouth to the sound of 'ha' as you bend your knees and fold forward, arms move back",
+        "Repeat for a few rounds"
+      ],
+      "dimensions": {
+        "direction": ["up"],
+        "temperature": "warming",
+        "structure": "single"
+      },
+      "variationDimensions": ["energy-effort", "rounds", "nose-mouth"]
+    },
+    {
+      "id": "horse-stance-breathing",
+      "title": "Horse stance breathing",
+      "text": "Stand with the legs spread and the knees bent. Place one hand resting on each knee while leaning forward allowing the abdomen to drop/hang forward. This body position allows easy access to the abdomen engagement without restriction. This position is best used cleansing and clearing breaths and other energising breathing practices.",
+      "howTo": [
+        "Stand with legs spread and knees bent",
+        "Place one hand resting on each knee while leaning forward",
+        "Allow the abdomen to drop/hang forward",
+        "Utilise a cleansing and clearing breath (P83) you can also try this with other energising breathing practices"
+      ],
+      "dimensions": {
+        "direction": ["up"],
+        "temperature": "warming",
+        "structure": "single"
+      },
+      "variationDimensions": ["seat-position", "support"]
+    },
+    {
+      "id": "physiological-sigh",
+      "title": "Physiological sigh",
+      "text": "The physiological sigh, or often called the cyclic sigh (when done in succession) is simple and effective down regulating, stress response breath.",
+      "howTo": [
+        "Start by noticing the current state your breath quality",
+        "Take a full inhale through the nose",
+        "Take second inhale through the nose, at a lower capacity but filling the intake to maximum capacity",
+        "Pause at the top",
+        "Open the mouth and sigh with an extended exhale",
+        "Repeat 5-10 times"
+      ],
+      "dimensions": {
+        "response": "direct-response",
+        "direction": ["down"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["nose-mouth", "touch"]
+    },
+    {
+      "id": "extended-exhale",
+      "title": "Extended exhale",
+      "text": "This breathing pattern is a release technique to help quickly down regulate the nervous system and activate the parasympathetic nervous system. It is a slow controlled technique where the exhale is longer than the inhale and no breath-holding in between. This technique is helps with relaxation and tension decompression.",
+      "howTo": [
+        "Breathe slowly to an comfortably full level",
+        "No pause needed",
+        "Exhale long, slow and deep with the mouth open and an audible sigh",
+        "Repeat as needed"
+      ],
+      "dimensions": {
+        "response": "direct-response",
+        "direction": ["down", "restorative"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["energy-effort", "nose-mouth", "rounds"]
+    },
+    {
+      "id": "triangle-breathing",
+      "title": "Triangle breathing",
+      "text": "A three part technique that helps slow down the breathing cycle and down regulate the nervous system. Triangle breathing focuses evenly on the inhale, pause at the top of the breath and the exhale. This pattern is known to help with stress and anxiousness.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Notice the current pace of the breath, regardless the state",
+        "Take a conscious breath to begin",
+        "Breathe in slowly for the count of 3 seconds or slow counting",
+        "Pause at the top of the inhale for 3 seconds or slow counting",
+        "Exhale slowly for the count of 3 seconds or slow counting",
+        "Repeat this for 10-12 rounds or 2 minutes",
+        "If a 3 count patterns feels too short/long or not supportive, increase or decrease to a count that creates calm and ease",
+        "Once completed, release the technique and return to a natural breathing pattern"
+      ],
+      "dimensions": {
+        "direction": ["down"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["counting", "gaze", "seat-position"]
+    },
+    {
+      "id": "3-part-breathing",
+      "title": "3 Part breathing",
+      "text": "A breathing technique for deep breathing that increasing oxygen intake and a full body sense of calmness. This technique helps to create both internal movement of the breath while a sense of warming within the body. Belly/chest breathing can be used effectively to calm the nerves or awaken the senses.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Notice the current pace of the breath, regardless the state",
+        "Take a conscious breath to begin",
+        "Place one hand on the belly and one hand on the chest",
+        "Breathe slowly and fully into both belly and chest equally, feeling both hands rise and expand",
+        "Pause at the top of the breath for 1 second",
+        "Exhale slowly letting the belly and chest empty",
+        "Repeat this for 10 rounds or 60 seconds"
+      ],
+      "dimensions": {
+        "direction": ["down"],
+        "structure": "single"
+      },
+      "variationDimensions": ["touch", "seat-position", "counting"]
+    },
+    {
+      "id": "4-7-8-breathing",
+      "title": "4 - 7- 8 Breathing",
+      "text": "Triangle Breathing Variation\nThis technique is an inverted variation of the triangle breathing technique, it was developed by an internationally renowned doctor and integrative medicine pioneer,\nDr. Andrew Weil, and according to Weil, it is the most effective way of managing anxiety and quelling errant stress responses. These breathing ratio is useful for combating anxiety because they help fortify the connection between mind and body. As you slow your breathing\nand focus fully on the breaths, you're taking, and your parasympathetic nervous system becomes engaged.",
+      "howTo": [
+        "Use the triangle breathing technique above as the foundation",
+        "Inhale for the count of 4 seconds or slow counting",
+        "Pause and hold the breath for the count of 7 seconds or slow counting",
+        "Exhale for the count of 8 seconds or slow counting",
+        "Repeat this for 10-12 rounds or 2 minutes"
+      ],
+      "dimensions": {
+        "direction": ["down"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["counting", "gaze", "seat-position"]
+    },
+    {
+      "id": "pinhole-breath",
+      "title": "Pinhole breath",
+      "text": "The pinhole breath is a technique that is effectively used to slow down the exhalation, down regulate the nervous system and reduce real time stress.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Notice the breath without changing it",
+        "Take a full inhale through the nose",
+        "Part your lips slightly",
+        "Exhale out slowly through your lips like exhaling through a small pinhole",
+        "Pause at the end of the breath",
+        "Repeat 10 times or 60 seconds"
+      ],
+      "dimensions": {
+        "direction": ["down", "restorative"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["nose-mouth", "energy-effort", "seat-position"]
+    },
+    {
+      "id": "low-frequency-humming-breath",
+      "title": "Low frequency humming breath",
+      "text": "A gentle humming down regulation technique. The vibrations from this breathing technique are known to soothe the nervous system and to free the mind of agitation.",
+      "howTo": [
+        "Gently place the thumbs over each tragus, applying gentle pressure",
+        "Allow the rest of your fingers to rest naturally along your forehead",
+        "With mouth closed take a slow breath in to full capacity",
+        "As you exhale slowly create a gentle humming sound",
+        "Repeat as needed"
+      ],
+      "dimensions": {
+        "response": "direct-response",
+        "direction": ["down", "restorative"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["volume", "touch", "support"]
+    },
+    {
+      "id": "3-part-interrupted-exhale",
+      "title": "3-Part interrupted exhale",
+      "text": "Brief pauses are taken during the exhale. Introduces concept of lengthening the exhale to understand the true capacity of the lungs.",
+      "howTo": [
+        "Find a comfortable seat or reclined position",
+        "Take a few clearing breaths",
+        "Take a full inhale filling the lungs to a comfortable capacity",
+        "Exhale one third of the breath",
+        "Take a short pause",
+        "Exhale the next third",
+        "Take a short pause",
+        "Exhale the final third, or until the lungs are empty of air",
+        "Take a final short pause",
+        "Inhale fully"
+      ],
+      "dimensions": {
+        "direction": ["down"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["nose-mouth", "seat-position", "counting"]
+    },
+    {
+      "id": "circular-nostril-breathing-cooling-and-calming",
+      "title": "Circular nostril breathing (cooling & calming)",
+      "text": "Breathing practice in which we inhale only through the left nostril and exhale through the right. Encourages flow of breath through the respiratory system creating a cooling energy within the body and calming energy for the mind.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Lift your right hand to the nose",
+        "Use your thumb to close off your right nostril and breath in through your left nostril",
+        "Close the left nostril with your ring finger, releasing right nostril and exhale through the right nostril",
+        "Continue in this way, inhaling through the left nostril and exhaling through the right for 1-3 minutes"
+      ],
+      "dimensions": {
+        "direction": ["down"],
+        "temperature": "cooling",
+        "structure": "single"
+      },
+      "variationDimensions": ["support", "seat-position", "rounds"]
+    },
+    {
+      "id": "cooling-breath-variation-1",
+      "title": "Cooling breath (variation 1)",
+      "text": "This breathing practice requires the participant to be able to curl their tongue like a straw in order to draw the breath across the tongue. This cools the body, improves focus and reduces agitation, anger and anxiety.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Take a few neutral breaths",
+        "With mouth open curl the tongue length ways to create a straw shape",
+        "Gently inhale washing the breath across the tongue",
+        "At the end of the inhalation relax the tongue and close the mouth",
+        "Exhale through your nose",
+        "Repeat for 10-12 rounds noticing the cooling effect on the body"
+      ],
+      "dimensions": {
+        "direction": ["down"],
+        "temperature": "cooling",
+        "structure": "single"
+      },
+      "variationDimensions": ["nose-mouth", "seat-position", "rounds"]
+    },
+    {
+      "id": "cooling-breath-variation-2",
+      "title": "Cooling breath (variation 2)",
+      "text": "This is another cooling breathing practice for those who are not able to curl their tongue (don't worry, it's genetic!) Rather than curling the tongue, the tongue is instead pressed against the back of the top teeth.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Take a few neutral breaths",
+        "Bring the teeth together, keeping the lips open and pressing the tip of the tongue to the back of the top teeth",
+        "Gently inhale, creating a soft hissing sound as the air moves in through the gaps in the teeth",
+        "At the end of inhalation release the teeth and tongue and close the lips",
+        "Exhale through your nose",
+        "Repeat 10-12 times, noticing the cooling effect on the body"
+      ],
+      "dimensions": {
+        "direction": ["down"],
+        "temperature": "cooling",
+        "structure": "single"
+      },
+      "variationDimensions": ["nose-mouth", "seat-position", "rounds"]
+    },
+    {
+      "id": "opposite-alternate-nostril-breathing-exhale",
+      "title": "Opposite alternate nostril breathing (exhale)",
+      "text": "A breathing technique in which the participant inhales through both nostrils, and then alternates the exhale through left and right. Helps to promote patience, focus and control as well as relieving stress and anxiety.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Lift your right hand to the nose",
+        "Take an inhale through both nostrils",
+        "Use the ring finger to close off the left nostril and exhale only through the right",
+        "Release the seal and inhale again through both nostrils",
+        "Now close the right nostril with your thumb and exhale only through your left",
+        "This is one round, continue for 10 rounds"
+      ],
+      "dimensions": {
+        "direction": ["down"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["support", "seat-position", "rounds"]
+    },
+    {
+      "id": "box-breathing",
+      "title": "Box breathing",
+      "text": "A breathing technique in which all four parts of the breath (inhalation, internal retention, exhalation, external retention) are all of equal length. Reduces physical stress symptoms and increased mental clarity.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Notice the current pace of the breath,regardless the state",
+        "Take a conscious breath to begin",
+        "Breathe in slowly for the count of 4 seconds or slow counting",
+        "Hold the breath at the top of the inhale for the count of 4",
+        "Exhale slowly to the count of 4",
+        "Repeat this for 30 rounds or 2 minutes",
+        "If a 4 count patterns feels too short, long or not supportive increase or decrease to a count that creates calm and ease",
+        "Once completed release the technique and return to a natural breathing pattern"
+      ],
+      "dimensions": {
+        "direction": ["horizontal"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["counting", "gaze", "seat-position"]
+    },
+    {
+      "id": "inspired-pause",
+      "title": "Inspired pause",
+      "text": "This breathing technique focuses on slowing the oxygen intake and exhalation. Too often when we breath we think value comes only from what we are doing, when there is significant value in moments when we are not breathing in or out. A significant and intentional pause aims to create a sense of non-physical ease, slow the heart rate down and expand the lung capacity.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Take a conscious breath to begin",
+        "Breathe in slowly filling the breath to a comfortable and manageable level",
+        "Without force, pause the breath without distinct muscular engagement",
+        "Hold for the count of 2 seconds or slow counting",
+        "Exhale gently",
+        "Increase/decrease pause/hold count as preferred"
+      ],
+      "dimensions": {
+        "direction": ["horizontal"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["counting", "gaze", "seat-position"]
+    },
+    {
+      "id": "alternative-nostril-breathing",
+      "title": "Alternative nostril breathing",
+      "text": "Breath practice in which each nostril is alternately used for inhalation and exhalation. Calms nervous system, balances masculine and feminine energy, balances left and right hemisphere of the brain, fosters mental clarity and cultivates ability to concentrate.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Take your right hand and lift up to your nose",
+        "Cover your right nostril with your thumb and take a long slow inhale through your left nostril",
+        "Use your right ring finger to close off your left nostril at the same time releasing the right",
+        "Exhale through your right nostril, pause briefly at the end of the exhale, then inhale again through the right nostril",
+        "Close off your right nostril, open your left and exhale through the left",
+        "This is one round, complete for several rounds of breath"
+      ],
+      "dimensions": {
+        "direction": ["horizontal", "restorative"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["support", "seat-position", "rounds"]
+    },
+    {
+      "id": "3-part-interrupted-inhale-exhale",
+      "title": "3-Part interrupted inhale & exhale",
+      "text": "Brief pauses are taken during the inhale and exhale. This technique helps slow down the breath and helps create a sense of calm and ease.",
+      "howTo": [
+        "Find a comfortable seat or reclined position",
+        "Take a few clearing breaths",
+        "On the next inhale, fill the lungs to just one third of their capacity",
+        "Take a short pause",
+        "Fill the next third",
+        "Take a short pause",
+        "Fill the final third, or until the lungs are full with air",
+        "Take a short pause at the top",
+        "Exhale one third of the breath",
+        "Take a short pause",
+        "Exhale the next third",
+        "Take a short pause",
+        "Exhale the final third, or until the lungs are empty of air",
+        "Take a final short pause",
+        "Repeat for a few rounds"
+      ],
+      "dimensions": {
+        "direction": ["horizontal"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["counting", "seat-position", "nose-mouth"]
+    },
+    {
+      "id": "conscious-breath",
+      "title": "Conscious breath",
+      "text": "A conscious breath is a slow considered breath to bring awareness into the body. A conscious breath is not dictated by quantity, but rather of a quality inhale and exhale to signal a focus and intention of the moment. Use this breath when beginning a practice or as a way to centre or reset into a state of complete awareness in the moment.",
+      "howTo": [
+        "Sitting or standing, bring your attention completely onto the breath",
+        "Take a conscious breath in (does not need to be deep)",
+        "Exhale the breath out at ease (mouth open or close)",
+        "Repeat as needed",
+        "Repeat this for 10 rounds or 60 seconds"
+      ],
+      "dimensions": {
+        "direction": ["functional"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["gaze", "nose-mouth", "seat-position"]
+    },
+    {
+      "id": "recovery-breath",
+      "title": "Recovery breath",
+      "text": "This technique is a variation of the conscious breath used intentionally after a breathing round. The recovery breath, or return to natural breath is to ensure that when a practice round completes, we are not simply stopping, but rather, transitioning ourselves intentionally back to a natural breath.",
+      "howTo": [
+        "At the completion of the last breath in the round, take a full inhale in",
+        "Hold the breath and pause to acknowledge the transition",
+        "Exhale fully with an extended breath helping to initiate a down regulation",
+        "The exhale can be mouth closed or open",
+        "Allow breathing pattern to return to a natural breath pace and flow"
+      ],
+      "dimensions": {
+        "direction": ["functional"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["nose-mouth", "gaze", "seat-position"]
+    },
+    {
+      "id": "diaphragmatic-breathing",
+      "title": "Diaphragmatic breathing",
+      "text": "Diaphragmatic breathing, also known as belly breathing is a deep breathing exercise that fully engages the diaphragm and increases the efficiency of the lungs.\nThis is a foundational technique for helping to regulate the nervous system and create a parasympathetic response. Belly breathing can be used pro actively to create a calming effect, and as a response in times of heightened stress or anxiousness.",
+      "howTo": [
+        "Find a comfortable seat or symmetrical standing position",
+        "Notice the current pace of the breath, regardless the state",
+        "Take a conscious breath to begin",
+        "Place one hand on the belly, and one hand on the chest",
+        "Breathe slowly and fully into the belly, letting it expand",
+        "Pause at the top of the breath for 1 second",
+        "Exhale slowly letting the belly the empty",
+        "Repeat this for 10 rounds or 60 seconds"
+      ],
+      "dimensions": {
+        "direction": ["functional"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["touch", "seat-position", "counting"]
+    },
+    {
+      "id": "costal-breath-or-chest-breathing",
+      "title": "Costal breath or chest breathing",
+      "text": "Costal breathing is a mode of breathing that requires contraction of the intercostal muscles. As the intercostal muscles relax, air passively leaves the lungs. This type of breathing is also known as shallow breathing.",
+      "howTo": [
+        "Find a comfortable seat or symmetrical standing position",
+        "Notice the current pace of the breath, regardless the state",
+        "Take a conscious breath to begin",
+        "Breathe slowly into the chest feeling the expansion of the intercostal muscles",
+        "Exhale slowly letting the chest empty",
+        "Repeat to 10 rounds or 60 seconds"
+      ],
+      "dimensions": {
+        "direction": ["functional"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["touch", "seat-position", "counting"]
+    },
+    {
+      "id": "clavicular-breath-or-upper-chest-breathing",
+      "title": "Clavicular breath or upper chest breathing",
+      "text": "Clavicular breathing relies on the muscles of the chest, shoulders, upper back, and neck to elevate the upper rib cage and chest for each inhalation. This causes the upper chest and lungs to expand, resulting in inhalation.",
+      "howTo": [
+        "Start by noticing the natural state of the breath",
+        "Breathe into the upper chest and lower throat space",
+        "Feel an 360 expansion, rather than an up and down action",
+        "Repeat to 10 rounds or 60 seconds"
+      ],
+      "dimensions": {
+        "direction": ["functional"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["touch", "seat-position", "counting"]
+    },
+    {
+      "id": "even-breath",
+      "title": "Even breath",
+      "text": "The steady inhalation and exhalation of equal duration.\nA straightforward practice that helps to soothe both body and mind. A technique to help slow down the breathing cycle and down regulate the nervous system. Evening breathing is a comprehensive baseline for all techniques.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Notice the current pace of the breath, regardless the state",
+        "Take a conscious breath to begin",
+        "Breathe in slowly for the count of 4 seconds or slow counting",
+        "Take a natural pause at the top of the inhale for approximately 1 second",
+        "Exhale to the count of 4 seconds or slow counting",
+        "Repeat this for 30 rounds or 2 minutes",
+        "If a 4 count patterns feels too short, long or not supportive increase or decrease to a count that creates calm and ease",
+        "Once completed, release the technique and return to a natural breathing pattern"
+      ],
+      "dimensions": {
+        "direction": ["functional"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["counting", "gaze", "seat-position"]
+    },
+    {
+      "id": "360-breathing",
+      "title": "360 Breathing",
+      "text": "This circumferential technique is a focused variation of belly/chest breathing that emphasises full torso breath capacity. Use 360 degree breathing to encourage a full breath and oxygen distribution and even inflation of rib cage expansion.",
+      "howTo": [
+        "Find a comfortable seat",
+        "Place one hand on the belly and one hand on the chest",
+        "Breathe slowly and fully into both belly and chest equally, feeling both hands rise and expand",
+        "Focus on expanding evening in a 360 degree direction",
+        "Pause at the top of the breath for 1 second",
+        "Exhale slowly letting the belly and chest empty",
+        "Repeat this for 10 rounds or 60 seconds"
+      ],
+      "dimensions": {
+        "direction": ["functional"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["touch", "seat-position", "counting"]
+    },
+    {
+      "id": "coherent-breath",
+      "title": "Coherent breath",
+      "text": "Coherent breathing is to breath at a rate of 5.5 breaths per minute, which generally translates into inhaling and exhaling to the count of 5.5 seconds. The purpose of this type of breathing is to increase heart rate variability.",
+      "howTo": [
+        "Inhale into your belly for five seconds",
+        "Exhale for another five seconds",
+        "Repeat for three to five minutes. Please mind the following: Avoid breathing like a robot, or like you're scuba diving - breathe naturally as you usually do, just slower"
+      ],
+      "dimensions": {
+        "direction": ["functional", "restorative"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["counting", "gaze", "seat-position"]
+    },
+    {
+      "id": "365-method",
+      "title": "365 Method",
+      "text": "365 Method is a common technique often recommended by clinical professionals to counter accumulated stress. This method is a recommendation to breathe and practice repeat all 365 days of the year.",
+      "howTo": [
+        "Using coherent breathing",
+        "Breathing practices three times a day",
+        "Breathing six times per minute (inhale for 5, exhale for 5)",
+        "Repeat for five minutes"
+      ],
+      "dimensions": {
+        "direction": ["functional"],
+        "temperature": "neutral",
+        "structure": "single"
+      },
+      "variationDimensions": ["counting", "rounds"]
+    },
+    {
+      "id": "cts",
+      "title": "CTS (Circle/Triangle/Square)",
+      "text": "Basic breathing exercise Optimize autonomic balance: a core breathing protocol\nEstablish a solid foundation for your breath with this foundational practice. Incorporating even breath, triangle breath, and box breath (remember this using the acronym 'circle, triangle, square' in reflection of the breathing patterns), this sequence promotes respiratory efficiency and overall balance. By syncing your inhalation and exhalation, you can cultivate a sense of evenness while optimizing oxygen intake.",
+      "dimensions": {
+        "response": "gradual-response",
+        "direction": ["horizontal"],
+        "temperature": "neutral",
+        "structure": "protocol"
+      },
+      "children": ["even-breath", "triangle-breathing", "box-breathing"]
+    },
+    {
+      "id": "360-ipa",
+      "title": "360° IPA",
+      "text": "Balanced breathing exercise Return to homeostatis: a sustained balance breathing protocol\nThis protocol is to help return the breath to balance or maintain a balanced homeostasis. These techniques help to regulate the autonomic nervous system, enhance oxygenation, and promote mental clarity. Balanced breathing reduces stress, improves focus, and cultivates overall equilibrium.",
+      "dimensions": {
+        "response": "gradual-response",
+        "direction": ["horizontal"],
+        "temperature": "neutral",
+        "structure": "protocol"
+      },
+      "children": ["360-breathing", "inspired-pause", "alternative-nostril-breathing"]
+    },
+    {
+      "id": "pxc",
+      "title": "PXC",
+      "text": "Stress response breathing exercise Dissolve stress: a breath-based protocol\nRespond to stress, anxiety, overwhelm or over stimulation with this rapid stress relief protocol and targeted breathing sequence. Combining the physiological sigh, extended exhale, and coherent breathing, this breathing protocol effectively activates the body's relaxation response by down regulating the sympathetic nervous system.",
+      "dimensions": {
+        "response": "gradual-response",
+        "direction": ["down"],
+        "temperature": "neutral",
+        "structure": "protocol"
+      },
+      "children": ["physiological-sigh", "extended-exhale", "coherent-breath"]
+    },
+    {
+      "id": "xlt",
+      "title": "XLT",
+      "text": "Calming breathing exercise Sustained rest: a breath-based restoration protocol\nExperience a scientifically-validated approach to stress management through this breathing practice. Combining extended exhale, low frequency humming breath and 4-7-8 breathing techniques, this protocol targets the body's stress response. By influencing the autonomic nervous system and promoting oxygenation, these exercises can induce a state a calming response and a parasympathetic activation.",
+      "dimensions": {
+        "response": "gradual-response",
+        "direction": ["down"],
+        "temperature": "neutral",
+        "structure": "protocol"
+      },
+      "children": ["extended-exhale", "low-frequency-humming-breath", "4-7-8-breathing"]
+    },
+    {
+      "id": "e3j",
+      "title": "E3J",
+      "text": "Energising breath exercise Ignite your energy: a breath- based boost protocol\nExperience a surge of vitality with this energising breathing practice. By combining energising breath, three-part inhale and exhale breathing, and breath of joy, this sequence is designed to stimulate the body's energy systems. Increase oxygen intake, enhance focus, and elevate mood through the power of your breath.",
+      "dimensions": {
+        "response": "gradual-response",
+        "direction": ["up"],
+        "temperature": "warming",
+        "structure": "protocol"
+      },
+      "children": ["energising-breath", "3-part-interrupted-inhale", "breath-of-joy"]
+    },
+    {
+      "id": "3cc",
+      "title": "3CC",
+      "text": "Warming breath exercise Accelerate circulation: increase metabolic rate protocol\nUsing the breath to generate internal heat, this protocol incorporates cleansing and clearing breath performed at varying intensities to stimulate circulation, increase core temperature, and promote detoxification. By modulating the rhythm and pace of this technique, you can effectively target different circulatory channels, increase metabolic rate and stimulate your innate heating capacity.\nNOTE: The three steps are the same technique (cleansing & clearing) performed at slow, medium, and fast pace respectively.",
+      "dimensions": {
+        "response": "gradual-response",
+        "direction": ["up", "horizontal"],
+        "temperature": "warming",
+        "structure": "protocol"
+      },
+      "children": ["cleansing-and-clearing", "cleansing-and-clearing", "cleansing-and-clearing"]
+    },
+    {
+      "id": "3xv",
+      "title": "3XV",
+      "text": "Sleep response breathing exercise. Deep rest: a sleep-enhancing breathwork protocol\nDeep Rest is a scientifically validated breathwork protocol designed to enhance sleep quality and can significantly reduce physiological arousal, lower cortisol levels and promote relaxation. Optimize your body's natural sleep-wake cycle and experience improved sleep quality, leading to greater overall well-being.",
+      "dimensions": {
+        "response": "gradual-response",
+        "direction": ["restorative"],
+        "temperature": "neutral",
+        "structure": "protocol"
+      },
+      "children": ["low-frequency-humming-breath", "pinhole-breath", "extended-exhale"]
+    },
+    {
+      "id": "cap",
+      "title": "CAP",
+      "text": "Relaxation breathing exercise Serenity: reduction of stimulus for optimal restoration\nExcessive sensory stimulation can disrupt the body's natural relaxation response and hinder restorative processes. This breathwork protocol designed to minimize external stimuli, creating an optimal environment for relaxation and rejuvenation. By reducing sensory input, this practice can effectively promote a state of deep relaxation, lower stress hormones, and optimize the body's ability to repair and recover.",
+      "dimensions": {
+        "response": "gradual-response",
+        "direction": ["restorative"],
+        "temperature": "neutral",
+        "structure": "protocol"
+      },
+      "children": ["coherent-breath", "alternative-nostril-breathing", "pinhole-breath"]
+    }
+  ]
+}
