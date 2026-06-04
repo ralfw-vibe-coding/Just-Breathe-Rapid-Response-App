@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   CircleX,
   ChevronDown,
+  ChevronUp,
   FileText,
   Info,
   GitBranchPlus,
@@ -52,6 +53,7 @@ const STORAGE_KEY = "jbr2-custom-protocol";
 type PersistedBuilderState = {
   overallDirection: Direction | "";
   builder: BuilderColumn[];
+  isProtocolInspirationCollapsed: boolean;
 };
 
 function App() {
@@ -64,6 +66,7 @@ function App() {
   const [openTechniqueId, setOpenTechniqueId] = useState<string | null>(null);
   const [overallDirection, setOverallDirection] = useState<Direction | "">("");
   const [builder, setBuilder] = useState<BuilderColumn[]>(DEFAULT_BUILDER);
+  const [isProtocolInspirationCollapsed, setIsProtocolInspirationCollapsed] = useState(false);
   const [hasHydratedBuilder, setHasHydratedBuilder] = useState(false);
 
   useEffect(() => {
@@ -121,6 +124,7 @@ function App() {
               : ["", "", ""],
         })),
       );
+      setIsProtocolInspirationCollapsed(Boolean(parsed.isProtocolInspirationCollapsed));
       setHasHydratedBuilder(true);
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
@@ -136,10 +140,11 @@ function App() {
     const payload: PersistedBuilderState = {
       overallDirection,
       builder,
+      isProtocolInspirationCollapsed,
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [overallDirection, builder, hasHydratedBuilder]);
+  }, [overallDirection, builder, isProtocolInspirationCollapsed, hasHydratedBuilder]);
 
   useEffect(() => {
     if (!openTechniqueId) {
@@ -234,6 +239,7 @@ function App() {
   function resetBuilder() {
     setBuilder(DEFAULT_BUILDER);
     setOverallDirection("");
+    setIsProtocolInspirationCollapsed(false);
     window.localStorage.removeItem(STORAGE_KEY);
   }
 
@@ -309,6 +315,10 @@ function App() {
             overallDirection={overallDirection}
             onOverallDirectionChange={setOverallDirection}
             suggestedProtocols={suggestedProtocols}
+            isProtocolInspirationCollapsed={isProtocolInspirationCollapsed}
+            onToggleProtocolInspiration={() =>
+              setIsProtocolInspirationCollapsed((current) => !current)
+            }
             techniquesById={techniquesById}
             builder={builder}
             singles={singles}
@@ -339,6 +349,10 @@ function App() {
           overallDirection={overallDirection}
           onOverallDirectionChange={setOverallDirection}
           suggestedProtocols={suggestedProtocols}
+          isProtocolInspirationCollapsed={isProtocolInspirationCollapsed}
+          onToggleProtocolInspiration={() =>
+            setIsProtocolInspirationCollapsed((current) => !current)
+          }
           techniquesById={techniquesById}
           builder={builder}
           singles={singles}
@@ -572,6 +586,8 @@ type BuilderPanelProps = {
   overallDirection: Direction | "";
   onOverallDirectionChange: (direction: Direction | "") => void;
   suggestedProtocols: Technique[];
+  isProtocolInspirationCollapsed: boolean;
+  onToggleProtocolInspiration: () => void;
   techniquesById: Record<string, Technique>;
   builder: BuilderColumn[];
   singles: Technique[];
@@ -588,6 +604,8 @@ function BuilderPanel({
   overallDirection,
   onOverallDirectionChange,
   suggestedProtocols,
+  isProtocolInspirationCollapsed,
+  onToggleProtocolInspiration,
   techniquesById,
   builder,
   singles,
@@ -641,35 +659,47 @@ function BuilderPanel({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Protocol inspiration</CardTitle>
-          <CardDescription>
-            Suggested from the selected overall direction. Use a full protocol, borrow only its directions, or place a single technique into its matching column.
-          </CardDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle className="text-2xl">Protocol inspiration</CardTitle>
+              <CardDescription>
+                Suggested from the selected overall direction. Use a full protocol, borrow only its directions, or place a single technique into its matching column.
+              </CardDescription>
+            </div>
+            <IconActionButton
+              label={isProtocolInspirationCollapsed ? "Expand protocol inspiration" : "Collapse protocol inspiration"}
+              onClick={onToggleProtocolInspiration}
+            >
+              {isProtocolInspirationCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            </IconActionButton>
+          </div>
         </CardHeader>
-        <CardContent>
-          {overallDirection === "" ? (
-            <div className="rounded-[1.25rem] border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-6 text-sm text-[color:var(--muted-foreground)]">
-              Choose an overall direction to see protocol suggestions.
-            </div>
-          ) : suggestedProtocols.length === 0 ? (
-            <div className="rounded-[1.25rem] border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-6 text-sm text-[color:var(--muted-foreground)]">
-              No curated protocol is currently mapped to this direction. You can still build your sequence manually below.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {suggestedProtocols.map((protocol) => (
-                <ProtocolSuggestionCard
-                  key={protocol.id}
-                  protocol={protocol}
-                  techniquesById={techniquesById}
-                  onApplyProtocol={onApplyProtocol}
-                  onApplyTechniqueToColumn={onApplyTechniqueToColumn}
-                  onRevealInBase={onRevealInBase}
-                />
-              ))}
-            </div>
-          )}
-        </CardContent>
+        {isProtocolInspirationCollapsed ? null : (
+          <CardContent>
+            {overallDirection === "" ? (
+              <div className="rounded-[1.25rem] border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-6 text-sm text-[color:var(--muted-foreground)]">
+                Choose an overall direction to see protocol suggestions.
+              </div>
+            ) : suggestedProtocols.length === 0 ? (
+              <div className="rounded-[1.25rem] border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-6 text-sm text-[color:var(--muted-foreground)]">
+                No curated protocol is currently mapped to this direction. You can still build your sequence manually below.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {suggestedProtocols.map((protocol) => (
+                  <ProtocolSuggestionCard
+                    key={protocol.id}
+                    protocol={protocol}
+                    techniquesById={techniquesById}
+                    onApplyProtocol={onApplyProtocol}
+                    onApplyTechniqueToColumn={onApplyTechniqueToColumn}
+                    onRevealInBase={onRevealInBase}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        )}
       </Card>
 
       <Card>
