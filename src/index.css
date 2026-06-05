@@ -96,3 +96,212 @@ textarea {
 .field-select:focus {
   box-shadow: 0 0 0 2px var(--ring);
 }
+
+.print-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: auto;
+  background: rgba(36, 53, 47, 0.38);
+  padding: 1.25rem;
+}
+
+.print-preview-shell {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+}
+
+.print-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: var(--panel);
+  padding: 0.85rem 1rem;
+  box-shadow: 0 20px 70px rgba(36, 53, 47, 0.18);
+}
+
+.print-page {
+  width: min(100%, 210mm);
+  min-height: 297mm;
+  margin: 0 auto;
+  background: #fffdf9;
+  color: var(--foreground);
+  box-shadow: 0 28px 90px rgba(36, 53, 47, 0.28);
+  padding: 12mm;
+}
+
+.print-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 8mm;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 5mm;
+}
+
+.print-kicker,
+.print-claim {
+  color: var(--muted-foreground);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.print-page h1 {
+  margin: 0.05rem 0 0;
+  font-family: var(--font-display);
+  font-size: 25px;
+  line-height: 1.05;
+}
+
+.print-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: auto;
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+
+.print-cell {
+  min-width: 0;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 3.5mm;
+}
+
+.print-technique-cell {
+  background: #f8f4ec;
+}
+
+.print-cell-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.print-position {
+  font-family: var(--font-body);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.print-empty-pill {
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--muted-foreground);
+  padding: 2px 7px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.print-cell h3 {
+  margin: 0 0 0.35rem;
+  font-size: 15px;
+  line-height: 1.15;
+}
+
+.print-cell p,
+.print-cell li {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
+.print-howto {
+  margin-top: 0.45rem;
+}
+
+.print-howto > div,
+.print-variation-dimension {
+  color: var(--muted-foreground);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.print-howto ol {
+  margin: 0.2rem 0 0 1rem;
+  padding: 0;
+}
+
+.print-variation-cell {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  gap: 0.4rem;
+  background: #fffdf9;
+}
+
+.print-variation-label {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--foreground);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.print-variation-cell p {
+  color: var(--foreground);
+  font-size: 11px;
+}
+
+.print-placeholder {
+  font-style: italic;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff;
+    height: auto;
+    min-height: 0;
+  }
+
+  body.print-preview-active #root {
+    display: none !important;
+  }
+
+  .print-overlay {
+    position: absolute;
+    inset: 0 auto auto 0;
+    overflow: visible;
+    background: #fff;
+    padding: 0;
+  }
+
+  .print-preview-shell {
+    width: 210mm;
+    margin: 0;
+  }
+
+  .print-toolbar {
+    display: none;
+  }
+
+  .print-page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    box-shadow: none;
+    padding: 12mm;
+  }
+}

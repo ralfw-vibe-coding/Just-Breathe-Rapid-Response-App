@@ -1,13 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
+  Check,
   CircleX,
   ChevronDown,
+  Copy,
   FileText,
   Info,
   GitBranchPlus,
   Plus,
+  Printer,
   Search,
   Sparkles,
+  X,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +48,14 @@ type AiSuggestion = {
   rationale: string;
   overallDirection: Direction;
   phases: AiSuggestionPhase[];
+};
+
+type PrintableProtocolColumn = {
+  position: number;
+  direction: Direction | "";
+  technique: Technique | null;
+  variationDimension: VariationDimension | null;
+  variationValues: string[];
 };
 
 const DIRECTIONS: Direction[] = ["up", "down", "horizontal", "restorative", "functional"];
@@ -788,6 +801,30 @@ function BuilderPanel({
   onUpdateColumn,
   onUpdateVariation,
 }: BuilderPanelProps) {
+  const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+
+  const printableColumns: PrintableProtocolColumn[] = builder.map((column, index) => ({
+    position: index + 1,
+    direction: column.direction,
+    technique: column.techniqueId ? techniquesById[column.techniqueId] ?? null : null,
+    variationDimension: column.variationDimensionId ? variationById[column.variationDimensionId] ?? null : null,
+    variationValues: column.variationValues,
+  }));
+
+  async function copyPrintableProtocol() {
+    setCopyStatus("idle");
+
+    try {
+      await copyProtocolToClipboard(printableColumns);
+      setCopyStatus("copied");
+      window.setTimeout(() => setCopyStatus("idle"), 1800);
+    } catch {
+      setCopyStatus("failed");
+      window.setTimeout(() => setCopyStatus("idle"), 2200);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -987,10 +1024,17 @@ function BuilderPanel({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Custom protocol</CardTitle>
-          <CardDescription>
-            Columns are the three techniques. Rows are the three variations for each technique.
-          </CardDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle className="text-2xl">Custom protocol</CardTitle>
+              <CardDescription>
+                Columns are the three techniques. Rows are the three variations for each technique.
+              </CardDescription>
+            </div>
+            <IconActionButton label="Open print preview" onClick={() => setIsPrintPreviewOpen(true)}>
+              <Printer className="h-4 w-4" />
+            </IconActionButton>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 xl:grid-cols-3">
@@ -1159,8 +1203,208 @@ function BuilderPanel({
           </div>
         </CardContent>
       </Card>
+
+      {isPrintPreviewOpen ? (
+        <ProtocolPrintPreview
+          columns={printableColumns}
+          copyStatus={copyStatus}
+          onClose={() => setIsPrintPreviewOpen(false)}
+          onCopy={copyPrintableProtocol}
+          onPrint={() => window.print()}
+        />
+      ) : null}
     </div>
   );
+}
+
+function ProtocolPrintPreview({
+  columns,
+  copyStatus,
+  onClose,
+  onCopy,
+  onPrint,
+}: {
+  columns: PrintableProtocolColumn[];
+  copyStatus: "idle" | "copied" | "failed";
+  onClose: () => void;
+  onCopy: () => void;
+  onPrint: () => void;
+}) {
+  const printPageRef = useRef<HTMLDivElement>(null);
+  const variationLabels = ["A", "B", "C"];
+
+  useEffect(() => {
+    document.body.classList.add("print-preview-active");
+
+    return () => {
+      document.body.classList.remove("print-preview-active");
+    };
+  }, []);
+
+  return createPortal(
+    <div className="print-overlay" role="dialog" aria-modal="true" aria-label="Printable custom protocol">
+      <div className="print-preview-shell">
+        <div className="print-toolbar">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">
+              Print format
+            </div>
+            <h2 className="font-[var(--font-display)] text-2xl text-[color:var(--foreground)]">Custom protocol</h2>
+          </div>
+          <div className="flex gap-2">
+            <IconActionButton label="Copy protocol matrix" onClick={onCopy}>
+              {copyStatus === "copied" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            </IconActionButton>
+            <IconActionButton label="Print protocol matrix" onClick={onPrint}>
+              <Printer className="h-4 w-4" />
+            </IconActionButton>
+            <IconActionButton label="Close print preview" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </IconActionButton>
+          </div>
+        </div>
+
+        {copyStatus === "failed" ? (
+          <div className="mb-3 rounded-2xl border border-[color:var(--border)] bg-[color:var(--up-surface)] px-4 py-2 text-sm text-[color:var(--up-chip)]">
+            Copy failed. Your browser may require allowing clipboard access.
+          </div>
+        ) : null}
+
+        <div ref={printPageRef} className="print-page">
+          <div className="print-page-header">
+            <div>
+              <div className="print-kicker">JBR2</div>
+              <h1>Custom protocol</h1>
+            </div>
+            <div className="print-claim">Custom breathwork protocols made easy</div>
+          </div>
+
+          <div className="print-matrix-grid">
+            {columns.map((column) => (
+              <div key={`technique-${column.position}`} className="print-cell print-technique-cell">
+                <div className="print-cell-heading">
+                  <div className="print-position">{column.position}.</div>
+                  {column.direction ? <DirectionPill direction={column.direction} compact /> : <span className="print-empty-pill">No direction</span>}
+                </div>
+                <h3>{column.technique?.title ?? "No technique selected"}</h3>
+                {column.technique ? (
+                  <>
+                    <p>{column.technique.text}</p>
+                    {column.technique.howTo?.length ? (
+                      <div className="print-howto">
+                        <div>How to</div>
+                        <ol>
+                          {column.technique.howTo.map((step, index) => (
+                            <li key={index}>{step}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    ) : null}
+                  </>
+                ) : (
+                  <p className="print-placeholder">Choose a technique before printing the protocol.</p>
+                )}
+              </div>
+            ))}
+
+            {variationLabels.map((label, variationIndex) =>
+              columns.map((column) => (
+                <div key={`${label}-${column.position}`} className="print-cell print-variation-cell">
+                  <div className="print-variation-label">{label}</div>
+                  <div>
+                    {variationIndex === 0 && column.variationDimension ? (
+                      <div className="print-variation-dimension">{column.variationDimension.title}</div>
+                    ) : null}
+                    <p>{column.variationValues[variationIndex]?.trim() || "No variation written yet."}</p>
+                  </div>
+                </div>
+              )),
+            )}
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+async function copyProtocolToClipboard(columns: PrintableProtocolColumn[]) {
+  const plainText = buildPlainTextProtocol(columns);
+  const html = buildHtmlProtocol(columns);
+  const clipboardItem = "ClipboardItem" in window ? window.ClipboardItem : null;
+
+  if (clipboardItem && navigator.clipboard?.write) {
+    await navigator.clipboard.write([
+      new clipboardItem({
+        "text/html": new Blob([html], { type: "text/html" }),
+        "text/plain": new Blob([plainText], { type: "text/plain" }),
+      }),
+    ]);
+    return;
+  }
+
+  await navigator.clipboard.writeText(plainText);
+}
+
+function buildPlainTextProtocol(columns: PrintableProtocolColumn[]) {
+  const rows = columns.map((column) => {
+    const title = column.technique?.title ?? "No technique selected";
+    const direction = column.direction ? DIRECTION_LABELS[column.direction] : "No direction";
+    const howTo = column.technique?.howTo?.length ? `\nHow to:\n${column.technique.howTo.map((step) => `- ${step}`).join("\n")}` : "";
+    const variations = ["A", "B", "C"]
+      .map((label, index) => `${label}: ${column.variationValues[index]?.trim() || "No variation written yet."}`)
+      .join("\n");
+
+    return `${column.position}. ${title} (${direction})\n${column.technique?.text ?? ""}${howTo}\n${variations}`;
+  });
+
+  return `JBR2 Custom protocol\nCustom breathwork protocols made easy\n\n${rows.join("\n\n")}`;
+}
+
+function buildHtmlProtocol(columns: PrintableProtocolColumn[]) {
+  const headerCells = columns
+    .map((column) => {
+      const title = escapeHtml(column.technique?.title ?? "No technique selected");
+      const direction = escapeHtml(column.direction ? DIRECTION_LABELS[column.direction] : "No direction");
+      const text = escapeHtml(column.technique?.text ?? "Choose a technique before printing the protocol.");
+      const howTo = column.technique?.howTo?.length
+        ? `<div style="margin-top:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#607169;">How to</div><ol style="margin:4px 0 0 18px;padding:0;">${column.technique.howTo
+            .map((step) => `<li>${escapeHtml(step)}</li>`)
+            .join("")}</ol>`
+        : "";
+
+      return `<td style="vertical-align:top;border:1px solid #d8d0bf;padding:12px;width:33.33%;"><div style="font-size:22px;font-weight:700;">${column.position}.</div><div style="margin:4px 0 8px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#607169;">${direction}</div><h3 style="margin:0 0 8px;font-size:16px;">${title}</h3><p style="margin:0;color:#607169;">${text}</p>${howTo}</td>`;
+    })
+    .join("");
+
+  const variationRows = ["A", "B", "C"]
+    .map((label, variationIndex) => {
+      const cells = columns
+        .map((column) => {
+          const dimension =
+            variationIndex === 0 && column.variationDimension
+              ? `<div style="margin-bottom:5px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#607169;">${escapeHtml(column.variationDimension.title)}</div>`
+              : "";
+          const value = escapeHtml(column.variationValues[variationIndex]?.trim() || "No variation written yet.");
+
+          return `<td style="vertical-align:top;border:1px solid #d8d0bf;padding:10px;width:33.33%;"><div style="font-weight:700;margin-bottom:5px;">${label}</div>${dimension}<p style="margin:0;color:#24352f;">${value}</p></td>`;
+        })
+        .join("");
+
+      return `<tr>${cells}</tr>`;
+    })
+    .join("");
+
+  return `<div style="font-family:Manrope,Avenir Next,Segoe UI,sans-serif;color:#24352f;"><h2 style="margin:0 0 4px;">JBR2 Custom protocol</h2><div style="margin-bottom:14px;color:#607169;">Custom breathwork protocols made easy</div><table style="border-collapse:collapse;width:100%;table-layout:fixed;"><tr>${headerCells}</tr>${variationRows}</table></div>`;
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function ProtocolSuggestionCard({
