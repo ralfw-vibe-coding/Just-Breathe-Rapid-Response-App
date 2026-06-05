@@ -8,10 +8,14 @@ import {
   FileText,
   Info,
   GitBranchPlus,
+  Play,
   Plus,
   Printer,
+  RotateCcw,
   Search,
   Sparkles,
+  Square,
+  Timer,
   X,
 } from "lucide-react";
 
@@ -56,6 +60,16 @@ type PrintableProtocolColumn = {
   technique: Technique | null;
   variationDimension: VariationDimension | null;
   variationValues: string[];
+};
+
+type WakeLockSentinelLike = EventTarget & {
+  release: () => Promise<void>;
+};
+
+type WakeLockCapableNavigator = Navigator & {
+  wakeLock?: {
+    request: (type: "screen") => Promise<WakeLockSentinelLike>;
+  };
 };
 
 const DIRECTIONS: Direction[] = ["up", "down", "horizontal", "restorative", "functional"];
@@ -802,6 +816,7 @@ function BuilderPanel({
   onUpdateVariation,
 }: BuilderPanelProps) {
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
+  const [isPracticeTimerOpen, setIsPracticeTimerOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   const printableColumns: PrintableProtocolColumn[] = builder.map((column, index) => ({
@@ -1031,9 +1046,14 @@ function BuilderPanel({
                 Columns are the three techniques. Rows are the three variations for each technique.
               </CardDescription>
             </div>
-            <IconActionButton label="Open print preview" onClick={() => setIsPrintPreviewOpen(true)}>
-              <Printer className="h-4 w-4" />
-            </IconActionButton>
+            <div className="flex shrink-0 gap-2">
+              <IconActionButton label="Open practice timer" onClick={() => setIsPracticeTimerOpen(true)}>
+                <Timer className="h-4 w-4" />
+              </IconActionButton>
+              <IconActionButton label="Open print preview" onClick={() => setIsPrintPreviewOpen(true)}>
+                <Printer className="h-4 w-4" />
+              </IconActionButton>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -1213,6 +1233,7 @@ function BuilderPanel({
           onPrint={() => window.print()}
         />
       ) : null}
+      <PracticeTimerPanel columns={printableColumns} isOpen={isPracticeTimerOpen} onClose={() => setIsPracticeTimerOpen(false)} />
     </div>
   );
 }
@@ -1328,6 +1349,324 @@ function ProtocolPrintPreview({
   );
 }
 
+function PracticeTimerPanel({
+  columns,
+  isOpen,
+  onClose,
+}: {
+  columns: PrintableProtocolColumn[];
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const [now, setNow] = useState(Date.now());
+  const [protocolStartedAt, setProtocolStartedAt] = useState<number | null>(null);
+  const [protocolElapsedBefore, setProtocolElapsedBefore] = useState(0);
+  const [variantStartedAt, setVariantStartedAt] = useState<number | null>(null);
+  const [variantElapsedBefore, setVariantElapsedBefore] = useState(0);
+  const [activeCellIndex, setActiveCellIndex] = useState<number | null>(null);
+  const [completedIndexes, setCompletedIndexes] = useState<number[]>([]);
+  const [wakeLockStatus, setWakeLockStatus] = useState<"idle" | "active" | "unsupported" | "failed">("idle");
+  const wakeLockRef = useRef<WakeLockSentinelLike | null>(null);
+  const practiceCells = columns.flatMap((column) =>
+    ["A", "B", "C"].map((label, variationIndex) => ({
+      index: (column.position - 1) * 3 + variationIndex,
+      label: `${column.position}${label}`,
+      techniqueTitle: column.technique?.title ?? "No technique selected",
+      variationText: column.variationValues[variationIndex]?.trim() || "No variation written yet.",
+      isReady: Boolean(column.technique),
+    })),
+  );
+  const activeCell = activeCellIndex === null ? null : practiceCells[activeCellIndex] ?? null;
+  const protocolElapsed = protocolElapsedBefore + (protocolStartedAt ? now - protocolStartedAt : 0);
+  const variantElapsed = variantElapsedBefore + (variantStartedAt ? now - variantStartedAt : 0);
+  const isProtocolRunning = protocolStartedAt !== null;
+  const isComplete = completedIndexes.length >= practiceCells.length;
+  const progressGrid = (
+    <PracticeProgressGrid columns={columns} activeCellIndex={activeCellIndex} completedIndexes={completedIndexes} />
+  );
+
+  useEffect(() => {
+    if (!protocolStartedAt && !variantStartedAt) {
+      return;
+    }
+
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [protocolStartedAt, variantStartedAt]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function releaseWakeLock() {
+      const wakeLock = wakeLockRef.current;
+      wakeLockRef.current = null;
+
+      if (wakeLock) {
+        await wakeLock.release().catch(() => undefined);
+      }
+    }
+
+    async function requestWakeLock() {
+      const wakeLockNavigator = navigator as WakeLockCapableNavigator;
+
+      if (!wakeLockNavigator.wakeLock) {
+        setWakeLockStatus("unsupported");
+        return;
+      }
+
+      if (document.visibilityState !== "visible") {
+        return;
+      }
+
+      try {
+        await releaseWakeLock();
+        const wakeLock = await wakeLockNavigator.wakeLock.request("screen");
+
+        if (cancelled) {
+          await wakeLock.release().catch(() => undefined);
+          return;
+        }
+
+        wakeLockRef.current = wakeLock;
+        setWakeLockStatus("active");
+        wakeLock.addEventListener("release", () => {
+          if (!cancelled) {
+            wakeLockRef.current = null;
+            setWakeLockStatus(protocolStartedAt ? "failed" : "idle");
+          }
+        });
+      } catch {
+        if (!cancelled) {
+          wakeLockRef.current = null;
+          setWakeLockStatus("failed");
+        }
+      }
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        void requestWakeLock();
+      }
+    }
+
+    if (!protocolStartedAt) {
+      setWakeLockStatus("idle");
+      void releaseWakeLock();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    void requestWakeLock();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      void releaseWakeLock();
+    };
+  }, [protocolStartedAt]);
+
+  function startProtocol() {
+    if (isProtocolRunning) {
+      return;
+    }
+
+    setNow(Date.now());
+    setProtocolStartedAt(Date.now());
+  }
+
+  function pauseProtocol() {
+    stopProtocol();
+  }
+
+  function stopProtocol() {
+    const stoppedAt = Date.now();
+
+    if (protocolStartedAt) {
+      setProtocolElapsedBefore((elapsed) => elapsed + stoppedAt - protocolStartedAt);
+      setProtocolStartedAt(null);
+    }
+
+    if (variantStartedAt) {
+      setVariantElapsedBefore((elapsed) => elapsed + stoppedAt - variantStartedAt);
+      setVariantStartedAt(null);
+    }
+
+    setNow(stoppedAt);
+  }
+
+  function resetPractice() {
+    const resetAt = Date.now();
+    setNow(resetAt);
+    setProtocolStartedAt(null);
+    setProtocolElapsedBefore(0);
+    setVariantStartedAt(null);
+    setVariantElapsedBefore(0);
+    setActiveCellIndex(null);
+    setCompletedIndexes([]);
+  }
+
+  function startOrAdvanceVariant() {
+    if (!isProtocolRunning) {
+      return;
+    }
+
+    const nextCompleted = activeCellIndex === null ? completedIndexes : uniqueNumbers([...completedIndexes, activeCellIndex]);
+    const nextIndex = practiceCells.find((cell) => !nextCompleted.includes(cell.index))?.index ?? null;
+    const startedAt = Date.now();
+
+    setCompletedIndexes(nextCompleted);
+    setActiveCellIndex(nextIndex);
+    setVariantElapsedBefore(0);
+    setVariantStartedAt(nextIndex === null ? null : startedAt);
+    setNow(startedAt);
+  }
+
+  if (!isOpen) {
+    return null;
+  }
+
+  return createPortal(
+    <div className="practice-overlay" role="dialog" aria-modal="true" aria-label="Practice timer">
+      <div className="practice-overlay-shell">
+        <div className="practice-toolbar">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">
+              Practice mode
+            </div>
+            <h2 className="font-[var(--font-display)] text-2xl text-[color:var(--foreground)]">Practice timer</h2>
+          </div>
+          <IconActionButton label="Close practice timer" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </IconActionButton>
+        </div>
+
+        <Card className="practice-timer-card">
+          <CardHeader>
+            <CardDescription>
+              Start the protocol timer, then move manually through ABC123 while tracking the active variation.
+            </CardDescription>
+            {wakeLockStatus !== "idle" ? (
+              <div className="text-xs font-medium text-[color:var(--muted-foreground)]">
+                Screen awake: {wakeLockStatus === "active" ? "active" : wakeLockStatus === "unsupported" ? "not supported by this browser" : "not available right now"}
+              </div>
+            ) : null}
+          </CardHeader>
+          <CardContent>
+            <div className="practice-remote">
+              <div className="text-center">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">
+                  Protocol elapsed
+                </div>
+                <div className="mt-1 font-[var(--font-body)] text-6xl font-bold tabular-nums text-[color:var(--foreground)]">
+                  {formatDuration(protocolElapsed)}
+                </div>
+              </div>
+
+              <div className="practice-progress-compact">
+                <div className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--muted-foreground)]">
+                  ABC123
+                </div>
+                {progressGrid}
+              </div>
+
+              <div className="grid gap-2">
+                {isProtocolRunning ? (
+                  <Button onClick={pauseProtocol}>
+                    <Square className="mr-2 h-4 w-4" />
+                    Pause
+                  </Button>
+                ) : (
+                  <Button onClick={startProtocol}>
+                    <Play className="mr-2 h-4 w-4" />
+                    {protocolElapsedBefore > 0 ? "Resume protocol" : "Start protocol"}
+                  </Button>
+                )}
+                <Button variant="outline" onClick={resetPractice}>
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Reset
+                </Button>
+              </div>
+
+              <Separator />
+
+              <div className="text-center">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">
+                  Current variation
+                </div>
+                <div className="mt-1 font-[var(--font-body)] text-4xl font-bold tabular-nums text-[color:var(--foreground)]">
+                  {formatDuration(variantElapsed)}
+                </div>
+              </div>
+
+              <Button onClick={startOrAdvanceVariant} disabled={!isProtocolRunning || isComplete}>
+                {activeCellIndex === null ? "Start first variation" : isComplete ? "All variations covered" : "Complete & next variation"}
+              </Button>
+
+              <div className="rounded-[1.25rem] bg-[color:var(--card)] p-4">
+                {activeCell ? (
+                  <>
+                    <div className="text-2xl font-semibold leading-tight text-[color:var(--foreground)]">
+                      {activeCell.label} {activeCell.techniqueTitle}
+                    </div>
+                    <p className="mt-3 text-lg leading-7 text-[color:var(--muted-foreground)]">{activeCell.variationText}</p>
+                  </>
+                ) : (
+                  <p className="text-base leading-7 text-[color:var(--muted-foreground)]">
+                    {isProtocolRunning
+                      ? "Start the first variation when you are ready."
+                      : "Start the protocol timer before moving through the variations."}
+                  </p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+function PracticeProgressGrid({
+  columns,
+  activeCellIndex,
+  completedIndexes,
+}: {
+  columns: PrintableProtocolColumn[];
+  activeCellIndex: number | null;
+  completedIndexes: number[];
+}) {
+  return (
+    <div className="practice-progress-grid">
+      {["A", "B", "C"].map((variationLabel, variationIndex) =>
+        columns.map((column) => {
+          const cellIndex = (column.position - 1) * 3 + variationIndex;
+          const isActive = activeCellIndex === cellIndex;
+          const isDone = completedIndexes.includes(cellIndex);
+          const isReady = Boolean(column.technique);
+
+          return (
+            <div
+              key={`${column.position}${variationLabel}`}
+              className={cn(
+                "practice-progress-cell",
+                isDone && "practice-progress-cell-done",
+                isActive && "practice-progress-cell-active",
+                !isReady && "practice-progress-cell-muted",
+              )}
+            >
+              {column.position}
+              {variationLabel}
+            </div>
+          );
+        }),
+      )}
+    </div>
+  );
+}
+
 async function copyProtocolToClipboard(columns: PrintableProtocolColumn[]) {
   const plainText = buildPlainTextProtocol(columns);
   const html = buildHtmlProtocol(columns);
@@ -1405,6 +1744,18 @@ function escapeHtml(value: string) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function formatDuration(milliseconds: number) {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function uniqueNumbers(values: number[]) {
+  return [...new Set(values)];
 }
 
 function ProtocolSuggestionCard({

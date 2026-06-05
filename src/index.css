@@ -97,6 +97,109 @@ textarea {
   box-shadow: 0 0 0 2px var(--ring);
 }
 
+.practice-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 2.45rem);
+  gap: 0.35rem;
+}
+
+.practice-progress-compact {
+  width: max-content;
+  margin: 0 auto;
+}
+
+.practice-progress-cell {
+  display: flex;
+  width: 2.45rem;
+  height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  background: var(--card);
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.practice-progress-cell-done {
+  border-color: transparent;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.practice-progress-cell-active {
+  border-color: var(--ring);
+  background: var(--restorative-surface);
+  color: var(--foreground);
+  box-shadow: 0 0 0 3px rgba(200, 109, 75, 0.18);
+  transform: translateY(-1px);
+}
+
+.practice-progress-cell-muted {
+  opacity: 0.45;
+}
+
+.practice-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  overflow: auto;
+  background: rgba(36, 53, 47, 0.38);
+  padding: 1.25rem;
+}
+
+.practice-overlay-shell {
+  width: min(100%, 430px);
+  margin: 0 auto;
+}
+
+.practice-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: var(--panel);
+  padding: 0.85rem 1rem;
+  box-shadow: 0 20px 70px rgba(36, 53, 47, 0.18);
+}
+
+.practice-timer-card {
+  overflow: hidden;
+}
+
+.practice-remote {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: var(--surface);
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .practice-progress-grid {
+    grid-template-columns: repeat(3, 2.8rem);
+    gap: 0.42rem;
+  }
+
+  .practice-progress-cell {
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 0.95rem;
+    font-size: 0.85rem;
+  }
+}
+
 .print-overlay {
   position: fixed;
   inset: 0;
