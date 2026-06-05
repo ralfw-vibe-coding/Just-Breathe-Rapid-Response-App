@@ -1585,16 +1585,13 @@ function PracticeTimerPanel({
         </div>
 
         <Card className="practice-timer-card">
-          <CardHeader>
-            <CardDescription>
-              Start the protocol timer, then move manually through ABC123 while tracking the active variation.
-            </CardDescription>
-            {wakeLockStatus !== "idle" ? (
+          {wakeLockStatus !== "idle" ? (
+            <CardHeader>
               <div className="text-xs font-medium text-[color:var(--muted-foreground)]">
                 Screen awake: {wakeLockStatus === "active" ? "active" : wakeLockStatus === "unsupported" ? "not supported by this browser" : "not available right now"}
               </div>
-            ) : null}
-          </CardHeader>
+            </CardHeader>
+          ) : null}
           <CardContent>
             <div className="practice-remote">
               <div className="text-center">
