@@ -207,6 +207,10 @@ textarea {
   padding: 1rem;
 }
 
+.practice-variation-card {
+  margin-top: -0.35rem;
+}
+
 @media (min-width: 640px) {
   .practice-progress-grid {
     grid-template-columns: repeat(3, 5.75rem);

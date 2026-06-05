@@ -8,6 +8,7 @@ import {
   FileText,
   Info,
   GitBranchPlus,
+  Monitor,
   Play,
   Plus,
   Printer,
@@ -1598,18 +1599,30 @@ function PracticeTimerPanel({
         </div>
 
         <Card className="practice-timer-card">
-          {wakeLockStatus !== "idle" ? (
-            <CardHeader>
-              <div className="text-xs font-medium text-[color:var(--muted-foreground)]">
-                Screen awake: {wakeLockStatus === "active" ? "active" : wakeLockStatus === "unsupported" ? "not supported by this browser" : "not available right now"}
-              </div>
-            </CardHeader>
-          ) : null}
           <CardContent>
             <div className="practice-remote">
               <div className="text-center">
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">
+                <div className="inline-flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">
                   Protocol elapsed
+                  {wakeLockStatus !== "idle" ? (
+                    <Monitor
+                      className={cn(
+                        "h-3.5 w-3.5",
+                        wakeLockStatus === "active" ? "text-[color:var(--horizontal-chip)]" : "text-[color:var(--muted-foreground)]",
+                      )}
+                      aria-label={`Screen awake: ${
+                        wakeLockStatus === "active"
+                          ? "active"
+                          : wakeLockStatus === "unsupported"
+                            ? "not supported by this browser"
+                            : "not available right now"
+                      }`}
+                    >
+                      <title>
+                        Screen awake: {wakeLockStatus === "active" ? "active" : wakeLockStatus === "unsupported" ? "not supported by this browser" : "not available right now"}
+                      </title>
+                    </Monitor>
+                  ) : null}
                 </div>
                 <div className="mt-1 font-[var(--font-body)] text-6xl font-bold tabular-nums text-[color:var(--foreground)]">
                   {formatDuration(protocolElapsed)}
@@ -1617,9 +1630,6 @@ function PracticeTimerPanel({
               </div>
 
               <div className="practice-progress-compact">
-                <div className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--muted-foreground)]">
-                  ABC123
-                </div>
                 {progressGrid}
               </div>
 
@@ -1669,13 +1679,13 @@ function PracticeTimerPanel({
                       : "Start variation"}
               </Button>
 
-              <div className="rounded-[1.25rem] bg-[color:var(--card)] p-4">
+              <div className="practice-variation-card rounded-[1.25rem] bg-[color:var(--card)] p-4">
                 {activeCell ? (
                   <>
                     <div className="text-2xl font-semibold leading-tight text-[color:var(--foreground)]">
                       {activeCell.label} {activeCell.techniqueTitle}
                     </div>
-                    <p className="mt-3 text-lg leading-7 text-[color:var(--muted-foreground)]">{activeCell.variationText}</p>
+                    <p className="mt-3 whitespace-pre-line text-lg leading-7 text-[color:var(--muted-foreground)]">{activeCell.variationText}</p>
                   </>
                 ) : (
                   <p className="text-base leading-7 text-[color:var(--muted-foreground)]">
