@@ -1380,9 +1380,15 @@ function PracticeTimerPanel({
   const protocolElapsed = protocolElapsedBefore + (protocolStartedAt ? now - protocolStartedAt : 0);
   const variantElapsed = variantElapsedBefore + (variantStartedAt ? now - variantStartedAt : 0);
   const isProtocolRunning = protocolStartedAt !== null;
+  const isVariantRunning = variantStartedAt !== null;
   const isComplete = completedIndexes.length >= practiceCells.length;
   const progressGrid = (
-    <PracticeProgressGrid columns={columns} activeCellIndex={activeCellIndex} completedIndexes={completedIndexes} />
+    <PracticeProgressGrid
+      columns={columns}
+      activeCellIndex={activeCellIndex}
+      completedIndexes={completedIndexes}
+      onSelectCell={selectVariation}
+    />
   );
 
   useEffect(() => {
@@ -1507,13 +1513,37 @@ function PracticeTimerPanel({
     setCompletedIndexes([]);
   }
 
+  function selectVariation(cellIndex: number) {
+    const selectedAt = Date.now();
+    setActiveCellIndex(cellIndex);
+    setVariantStartedAt(null);
+    setVariantElapsedBefore(0);
+    setNow(selectedAt);
+  }
+
+  function startSelectedVariant() {
+    if (!isProtocolRunning || activeCellIndex === null || isVariantRunning) {
+      return;
+    }
+
+    const startedAt = Date.now();
+    setVariantStartedAt(startedAt);
+    setVariantElapsedBefore(0);
+    setNow(startedAt);
+  }
+
   function startOrAdvanceVariant() {
     if (!isProtocolRunning) {
       return;
     }
 
     const nextCompleted = activeCellIndex === null ? completedIndexes : uniqueNumbers([...completedIndexes, activeCellIndex]);
-    const nextIndex = practiceCells.find((cell) => !nextCompleted.includes(cell.index))?.index ?? null;
+    const nextIndex =
+      activeCellIndex === null
+        ? practiceCells.find((cell) => !nextCompleted.includes(cell.index))?.index ?? null
+        : practiceCells.find((cell) => cell.index > activeCellIndex && !nextCompleted.includes(cell.index))?.index ??
+          practiceCells.find((cell) => !nextCompleted.includes(cell.index))?.index ??
+          null;
     const startedAt = Date.now();
 
     setCompletedIndexes(nextCompleted);
@@ -1600,8 +1630,21 @@ function PracticeTimerPanel({
                 </div>
               </div>
 
-              <Button onClick={startOrAdvanceVariant} disabled={!isProtocolRunning || isComplete}>
-                {activeCellIndex === null ? "Start first variation" : isComplete ? "All variations covered" : "Complete & next variation"}
+              <Button
+                onClick={
+                  activeCellIndex === null || isVariantRunning
+                    ? startOrAdvanceVariant
+                    : startSelectedVariant
+                }
+                disabled={!isProtocolRunning || isComplete}
+              >
+                {activeCellIndex === null
+                  ? "Start first variation"
+                  : isComplete
+                    ? "All variations covered"
+                    : isVariantRunning
+                      ? "Complete & next variation"
+                      : "Start variation"}
               </Button>
 
               <div className="rounded-[1.25rem] bg-[color:var(--card)] p-4">
@@ -1633,10 +1676,12 @@ function PracticeProgressGrid({
   columns,
   activeCellIndex,
   completedIndexes,
+  onSelectCell,
 }: {
   columns: PrintableProtocolColumn[];
   activeCellIndex: number | null;
   completedIndexes: number[];
+  onSelectCell: (cellIndex: number) => void;
 }) {
   return (
     <div className="practice-progress-grid">
@@ -1648,7 +1693,10 @@ function PracticeProgressGrid({
           const isReady = Boolean(column.technique);
 
           return (
-            <div
+            <button
+              type="button"
+              aria-label={`Jump to variation ${column.position}${variationLabel}`}
+              onClick={() => onSelectCell(cellIndex)}
               key={`${column.position}${variationLabel}`}
               className={cn(
                 "practice-progress-cell",
@@ -1659,7 +1707,7 @@ function PracticeProgressGrid({
             >
               {column.position}
               {variationLabel}
-            </div>
+            </button>
           );
         }),
       )}

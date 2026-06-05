@@ -118,6 +118,7 @@ textarea {
   border-radius: 0.85rem;
   background: var(--card);
   color: var(--muted-foreground);
+  cursor: pointer;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -126,6 +127,17 @@ textarea {
     color 180ms ease,
     border-color 180ms ease,
     transform 180ms ease;
+}
+
+.practice-progress-cell:hover {
+  border-color: var(--ring);
+  color: var(--foreground);
+  transform: translateY(-1px);
+}
+
+.practice-progress-cell:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 
 .practice-progress-cell-done {
