@@ -1365,6 +1365,7 @@ function PracticeTimerPanel({
   const [variantElapsedBefore, setVariantElapsedBefore] = useState(0);
   const [activeCellIndex, setActiveCellIndex] = useState<number | null>(null);
   const [completedIndexes, setCompletedIndexes] = useState<number[]>([]);
+  const [resumeVariantOnProtocolResume, setResumeVariantOnProtocolResume] = useState(false);
   const [wakeLockStatus, setWakeLockStatus] = useState<"idle" | "active" | "unsupported" | "failed">("idle");
   const wakeLockRef = useRef<WakeLockSentinelLike | null>(null);
   const practiceCells = columns.flatMap((column) =>
@@ -1478,11 +1479,18 @@ function PracticeTimerPanel({
       return;
     }
 
-    setNow(Date.now());
-    setProtocolStartedAt(Date.now());
+    const startedAt = Date.now();
+    setNow(startedAt);
+    setProtocolStartedAt(startedAt);
+
+    if (resumeVariantOnProtocolResume && activeCellIndex !== null) {
+      setVariantStartedAt(startedAt);
+      setResumeVariantOnProtocolResume(false);
+    }
   }
 
   function pauseProtocol() {
+    setResumeVariantOnProtocolResume(variantStartedAt !== null);
     stopProtocol();
   }
 
@@ -1511,6 +1519,7 @@ function PracticeTimerPanel({
     setVariantElapsedBefore(0);
     setActiveCellIndex(null);
     setCompletedIndexes([]);
+    setResumeVariantOnProtocolResume(false);
   }
 
   function selectVariation(cellIndex: number) {
@@ -1518,6 +1527,7 @@ function PracticeTimerPanel({
     setActiveCellIndex(cellIndex);
     setVariantStartedAt(null);
     setVariantElapsedBefore(0);
+    setResumeVariantOnProtocolResume(false);
     setNow(selectedAt);
   }
 
@@ -1529,6 +1539,7 @@ function PracticeTimerPanel({
     const startedAt = Date.now();
     setVariantStartedAt(startedAt);
     setVariantElapsedBefore(0);
+    setResumeVariantOnProtocolResume(false);
     setNow(startedAt);
   }
 
@@ -1550,6 +1561,7 @@ function PracticeTimerPanel({
     setActiveCellIndex(nextIndex);
     setVariantElapsedBefore(0);
     setVariantStartedAt(nextIndex === null ? null : startedAt);
+    setResumeVariantOnProtocolResume(false);
     setNow(startedAt);
   }
 
