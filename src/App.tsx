@@ -1362,7 +1362,7 @@ function PracticeTimerPanel({
   const [protocolStartedAt, setProtocolStartedAt] = useState<number | null>(null);
   const [protocolElapsedBefore, setProtocolElapsedBefore] = useState(0);
   const [variantStartedAt, setVariantStartedAt] = useState<number | null>(null);
-  const [variantElapsedBefore, setVariantElapsedBefore] = useState(0);
+  const [variationElapsedByIndex, setVariationElapsedByIndex] = useState<number[]>(() => Array.from({ length: 9 }, () => 0));
   const [activeCellIndex, setActiveCellIndex] = useState<number | null>(null);
   const [completedIndexes, setCompletedIndexes] = useState<number[]>([]);
   const [resumeVariantOnProtocolResume, setResumeVariantOnProtocolResume] = useState(false);
@@ -1379,7 +1379,10 @@ function PracticeTimerPanel({
   );
   const activeCell = activeCellIndex === null ? null : practiceCells[activeCellIndex] ?? null;
   const protocolElapsed = protocolElapsedBefore + (protocolStartedAt ? now - protocolStartedAt : 0);
-  const variantElapsed = variantElapsedBefore + (variantStartedAt ? now - variantStartedAt : 0);
+  const visibleVariationElapsedByIndex = variationElapsedByIndex.map((elapsed, index) =>
+    index === activeCellIndex && variantStartedAt ? elapsed + now - variantStartedAt : elapsed,
+  );
+  const variantElapsed = activeCellIndex === null ? 0 : visibleVariationElapsedByIndex[activeCellIndex] ?? 0;
   const isProtocolRunning = protocolStartedAt !== null;
   const isVariantRunning = variantStartedAt !== null;
   const isComplete = completedIndexes.length >= practiceCells.length;
@@ -1388,6 +1391,7 @@ function PracticeTimerPanel({
       columns={columns}
       activeCellIndex={activeCellIndex}
       completedIndexes={completedIndexes}
+      elapsedByIndex={visibleVariationElapsedByIndex}
       onSelectCell={selectVariation}
     />
   );
@@ -1439,7 +1443,7 @@ function PracticeTimerPanel({
         wakeLock.addEventListener("release", () => {
           if (!cancelled) {
             wakeLockRef.current = null;
-            setWakeLockStatus(protocolStartedAt ? "failed" : "idle");
+            setWakeLockStatus(protocolStartedAt && isOpen ? "failed" : "idle");
           }
         });
       } catch {
@@ -1456,7 +1460,7 @@ function PracticeTimerPanel({
       }
     }
 
-    if (!protocolStartedAt) {
+    if (!protocolStartedAt || !isOpen) {
       setWakeLockStatus("idle");
       void releaseWakeLock();
       return () => {
@@ -1472,7 +1476,7 @@ function PracticeTimerPanel({
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       void releaseWakeLock();
     };
-  }, [protocolStartedAt]);
+  }, [protocolStartedAt, isOpen]);
 
   function startProtocol() {
     if (isProtocolRunning) {
@@ -1502,10 +1506,7 @@ function PracticeTimerPanel({
       setProtocolStartedAt(null);
     }
 
-    if (variantStartedAt) {
-      setVariantElapsedBefore((elapsed) => elapsed + stoppedAt - variantStartedAt);
-      setVariantStartedAt(null);
-    }
+    commitRunningVariation(stoppedAt);
 
     setNow(stoppedAt);
   }
@@ -1516,7 +1517,7 @@ function PracticeTimerPanel({
     setProtocolStartedAt(null);
     setProtocolElapsedBefore(0);
     setVariantStartedAt(null);
-    setVariantElapsedBefore(0);
+    setVariationElapsedByIndex(Array.from({ length: 9 }, () => 0));
     setActiveCellIndex(null);
     setCompletedIndexes([]);
     setResumeVariantOnProtocolResume(false);
@@ -1524,9 +1525,9 @@ function PracticeTimerPanel({
 
   function selectVariation(cellIndex: number) {
     const selectedAt = Date.now();
+    commitRunningVariation(selectedAt);
     setActiveCellIndex(cellIndex);
     setVariantStartedAt(null);
-    setVariantElapsedBefore(0);
     setResumeVariantOnProtocolResume(false);
     setNow(selectedAt);
   }
@@ -1538,7 +1539,6 @@ function PracticeTimerPanel({
 
     const startedAt = Date.now();
     setVariantStartedAt(startedAt);
-    setVariantElapsedBefore(0);
     setResumeVariantOnProtocolResume(false);
     setNow(startedAt);
   }
@@ -1557,12 +1557,25 @@ function PracticeTimerPanel({
           null;
     const startedAt = Date.now();
 
+    commitRunningVariation(startedAt);
     setCompletedIndexes(nextCompleted);
     setActiveCellIndex(nextIndex);
-    setVariantElapsedBefore(0);
     setVariantStartedAt(nextIndex === null ? null : startedAt);
     setResumeVariantOnProtocolResume(false);
     setNow(startedAt);
+  }
+
+  function commitRunningVariation(stoppedAt: number) {
+    if (variantStartedAt === null || activeCellIndex === null) {
+      return;
+    }
+
+    setVariationElapsedByIndex((elapsedByIndex) =>
+      elapsedByIndex.map((elapsed, index) =>
+        index === activeCellIndex ? elapsed + stoppedAt - variantStartedAt : elapsed,
+      ),
+    );
+    setVariantStartedAt(null);
   }
 
   if (!isOpen) {
@@ -1685,11 +1698,13 @@ function PracticeProgressGrid({
   columns,
   activeCellIndex,
   completedIndexes,
+  elapsedByIndex,
   onSelectCell,
 }: {
   columns: PrintableProtocolColumn[];
   activeCellIndex: number | null;
   completedIndexes: number[];
+  elapsedByIndex: number[];
   onSelectCell: (cellIndex: number) => void;
 }) {
   return (
@@ -1714,8 +1729,11 @@ function PracticeProgressGrid({
                 !isReady && "practice-progress-cell-muted",
               )}
             >
-              {column.position}
-              {variationLabel}
+              <span>
+                {column.position}
+                {variationLabel}
+              </span>
+              <span className="practice-progress-time">{formatDuration(elapsedByIndex[cellIndex] ?? 0)}</span>
             </button>
           );
         }),
